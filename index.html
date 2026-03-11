@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <!-- // [SYSTEM_CORE] — ALIEN TERMINAL PORTFOLIO -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Portfolio 3D Artist — Archive System Weyland-Yutani. Projets de modélisation 3D, rendu, animation et environnements.">
+  <meta name="theme-color" content="#0a0e0a">
+  <title>ARCHIVE SYSTEM v2.4.1 — Portfolio 3D</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- // [EMAILJS] — Contact Form Service -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    (function () { emailjs.init({ publicKey: '8cGoJCGjx012ICJvG' }); })();
+  </script>
+  <!-- // [THREE_JS] — 3D Viewer -->
+  <script type="importmap">
+    { "imports": {
+      "three": "https://esm.sh/three@0.160.0",
+      "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+    }}
+  </script>
+</head>
+
+<body>
+
+  <!-- // [CUSTOM_CURSOR] -->
+  <div class="cursor-custom" id="customCursor"></div>
+
+  <!-- // [OVERLAYS] -->
+  <div class="scanline-overlay"></div>
+  <div class="vignette-overlay"></div>
+
+  <!-- // [BACKGROUND_SYSTEM_TEXT] -->
+  <div class="bg-system-text" id="bgText" aria-hidden="true"></div>
+
+  <!-- // [STATUS_BAR] -->
+  <header class="status-bar" id="statusBar" style="display:none;">
+    <div class="status-left">
+      <span>SYS_STATUS: <span class="status-online">ONLINE</span></span>
+      <span class="status-separator">|</span>
+      <span>DATE: <span id="statusDate">--</span></span>
+      <span class="status-separator">|</span>
+      <span>UPTIME: <span id="statusUptime">00:00:00</span></span>
+    </div>
+    <div class="status-right">
+      <span>OPERATOR: <span class="status-online">VISITOR</span></span>
+      <span class="status-separator">|</span>
+      <span>MODULE: <span id="statusModule">HOME</span></span>
+      <span class="status-separator">|</span>
+      <div class="rgb-toggle">
+        <label class="rgb-check rgb-r"><input type="checkbox" id="rgbR"
+            onchange="updateRGBTheme()"><span>R</span></label>
+        <label class="rgb-check rgb-g"><input type="checkbox" id="rgbG" checked
+            onchange="updateRGBTheme()"><span>G</span></label>
+        <label class="rgb-check rgb-b"><input type="checkbox" id="rgbB"
+            onchange="updateRGBTheme()"><span>B</span></label>
+      </div>
+      <span class="status-separator">|</span>
+      <canvas id="audioVisualizer" class="audio-visualizer" width="80" height="24"></canvas>
+      <span class="status-separator">|</span>
+      <button class="audio-toggle" id="audioToggleBtn" onclick="toggleAudioMute()" title="Mute audio">🔊</button>
+    </div>
+  </header>
+
+  <!-- // [PROJECT_PREVIEW_TOOLTIP] -->
+  <div class="project-preview" id="projectPreview">
+    <img src="" alt="Project preview" id="previewImg">
+    <div class="preview-label" id="previewLabel"></div>
+  </div>
+
+  <!-- ============================================================
+       // [BOOT_SCREEN] — MODULE 1
+       ============================================================ -->
+  <section id="boot-screen">
+    <div class="boot-line dim" data-delay="0">SHEPARD STAR CORP. — ARCHIVE SYSTEM v2.4.1</div>
+    <div class="boot-line dim" data-delay="300">────────────────────────────────────────────</div>
+    <div class="boot-line" data-delay="600">INITIALIZING CORE SYSTEMS...</div>
+    <div class="boot-line" data-delay="900">LOADING MEMORY BANKS... OK</div>
+    <div class="boot-line" data-delay="1100">VERIFYING SECURITY CLEARANCE... OK</div>
+    <div class="boot-line" data-delay="1400">LOADING USER PROFILE... <span class="boot-progress"
+        id="bootProgress"></span></div>
+    <div class="boot-line" data-delay="2000">DECRYPTING ARCHIVE DATA... OK</div>
+    <div class="boot-line" data-delay="2300" style="color: var(--green-primary); font-weight: bold;">ACCESS GRANTED —
+      WELCOME, VISITOR<span class="boot-cursor"></span></div>
+    <button class="boot-skip" id="bootSkip" onclick="skipBoot()">[ SKIP — ENTER ]</button>
+  </section>
+
+  <!-- ============================================================
+       // [HOME_MODULE] — MODULE 2
+       ============================================================ -->
+  <section id="home" class="section">
+    <div class="home-header">
+      <pre class="ascii-logo" aria-label="VALENTIN">
+ █████╗ ██████╗  ██████╗██╗  ██╗██╗██╗   ██╗███████╗
+██╔══██╗██╔══██╗██╔════╝██║  ██║██║██║   ██║██╔════╝
+███████║██████╔╝██║     ███████║██║██║   ██║█████╗  
+██╔══██║██╔══██╗██║     ██╔══██║██║╚██╗ ██╔╝██╔══╝  
+██║  ██║██║  ██║╚██████╗██║  ██║██║ ╚████╔╝ ███████╗
+╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚══════╝
+      </pre>
+      <p class="home-tagline typewrite">// TERMINAL D'ACCÈS — SYSTÈME D'ARCHIVE NUMÉRIQUE</p>
+    </div>
+
+    <nav class="nav-menu" id="navMenu">
+      <div class="nav-item stagger-item charge-border" onclick="navigateTo('projects')" data-section="projects">
+        <span class="nav-id">[01]</span>
+        <span class="nav-label">PROJECTS DATABASE</span>
+        <span class="nav-dots">............</span>
+        <span class="nav-info"><span id="projectCount">0</span> ENTRIES</span>
+      </div>
+      <div class="nav-item stagger-item charge-border" onclick="navigateTo('about')" data-section="about">
+        <span class="nav-id">[02]</span>
+        <span class="nav-label">ABOUT / OPERATIVE PROFILE</span>
+        <span class="nav-dots">............</span>
+        <span class="nav-info">CLASSIFIED</span>
+      </div>
+      <div class="nav-item stagger-item charge-border" onclick="navigateTo('contact')" data-section="contact">
+        <span class="nav-id">[03]</span>
+        <span class="nav-label">CONTACT MODULE</span>
+        <span class="nav-dots">............</span>
+        <span class="nav-info">OPEN CHANNEL</span>
+      </div>
+    </nav>
+
+    <!-- // [TELEMETRY_WIDGET] -->
+    <div class="telemetry-widget stagger-item" aria-hidden="true">
+      <div class="telemetry-label">SYS_LOAD</div>
+      <div class="telemetry-bars">
+        <div class="telemetry-bar-container">
+          <div class="telemetry-bar-fill"></div>
+        </div>
+        <div class="telemetry-bar-container">
+          <div class="telemetry-bar-fill"></div>
+        </div>
+        <div class="telemetry-bar-container">
+          <div class="telemetry-bar-fill"></div>
+        </div>
+        <div class="telemetry-bar-container">
+          <div class="telemetry-bar-fill"></div>
+        </div>
+        <div class="telemetry-bar-container">
+          <div class="telemetry-bar-fill"></div>
+        </div>
+        <div class="telemetry-bar-container">
+          <div class="telemetry-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       // [PROJECTS_MODULE] — MODULE 3
+       ============================================================ -->
+  <section id="projects" class="section">
+    <div class="module-header">
+      <button class="back-btn" onclick="navigateTo('home')">&#60; RETOUR AU TERMINAL</button>
+      <h2>// PROJECT DATABASE — <span id="projectsHeaderCount">0</span> ENTRIES LOADED</h2>
+    </div>
+
+    <div class="filter-bar">
+      <label for="filterType">FILTER:</label>
+      <select id="filterType">
+        <option value="all">ALL</option>
+        <option value="3D / RENDER">3D / RENDER</option>
+        <option value="ENVIRONMENT">ENVIRONMENT</option>
+        <option value="CHARACTER">CHARACTER</option>
+        <option value="ANIMATION">ANIMATION</option>
+      </select>
+      <label for="sortBy">SORT:</label>
+      <select id="sortBy">
+        <option value="date-desc">DATE ↓</option>
+        <option value="date-asc">DATE ↑</option>
+        <option value="name">NAME</option>
+      </select>
+      <label for="searchInput">SEARCH:</label>
+      <input type="text" id="searchInput" placeholder="_______________" autocomplete="off">
+    </div>
+
+    <table class="projects-table" id="projectsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>NAME</th>
+          <th class="col-type">TYPE</th>
+          <th class="col-year">YEAR</th>
+          <th>STATUS</th>
+          <th class="col-arrow"></th>
+        </tr>
+      </thead>
+      <tbody id="projectsTableBody">
+        <!-- // [DYNAMIC_CONTENT] — Rendered by main.js -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       // [PROJECT_VIEW_MODULE] — MODULE 4
+       ============================================================ -->
+  <section id="project-view" class="section">
+    <div class="project-detail-header">
+      <button class="back-btn" onclick="navigateTo('projects')">&#60; BACK TO DATABASE</button>
+      <span style="color: var(--text-secondary); font-size: 0.85rem; padding-top: 50px;" id="projectViewId">PROJECT ID:
+        --</span>
+    </div>
+    <hr class="module-divider">
+
+    <h2 id="projectViewName"
+      style="font-family: var(--font-system); font-size: 1.4rem; color: var(--green-primary); margin-bottom: 8px; letter-spacing: 2px;">
+      --</h2>
+
+    <div class="project-detail-meta" id="projectViewMeta">
+      <span>TYPE: <span class="meta-value" id="pvType">--</span></span>
+      <span>YEAR: <span class="meta-value" id="pvYear">--</span></span>
+      <span>STATUS: <span class="meta-value" id="pvStatus">--</span></span>
+    </div>
+
+    <div class="project-detail-layout">
+      <!-- // [CAROUSEL] -->
+      <div class="carousel-container" id="carouselContainer">
+        <div class="carousel-placeholder" id="carouselPlaceholder">
+          <span class="placeholder-icon">◨</span>
+          <span>NO IMAGE DATA AVAILABLE</span>
+          <span style="font-size:0.7rem; color: var(--text-secondary); margin-top:6px;">// place images in
+            assets/projects/P-XXX/</span>
+        </div>
+        <img src="" alt="Project image" id="carouselImg" style="display:none;">
+        <div class="carousel-controls">
+          <button class="carousel-btn" id="carouselPrev" onclick="carouselNav(-1)">&#60; PREV</button>
+          <span class="carousel-indicator" id="carouselIndicator">IMG 0/0</span>
+          <button class="carousel-btn" id="carouselNext" onclick="carouselNav(1)">NEXT &#62;</button>
+        </div>
+      </div>
+
+      <!-- // [INFO_PANEL] -->
+      <div class="project-info-panel">
+        <div class="info-section">
+          <div class="info-label">DESCRIPTION</div>
+          <div class="info-content" id="pvDescription">--</div>
+        </div>
+        <div class="info-section">
+          <div class="info-label">BREAKDOWN</div>
+          <div class="info-content" id="pvBreakdown">--</div>
+        </div>
+        <div class="info-section">
+          <div class="info-label">TAGS</div>
+          <div class="info-content">
+            <div class="tag-list" id="pvTags"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-nav-footer">
+      <button class="project-nav-btn" id="prevProjectBtn" onclick="adjacentProject(-1)">&#60; PREV PROJECT</button>
+      <button class="project-nav-btn" id="nextProjectBtn" onclick="adjacentProject(1)">NEXT PROJECT &#62;</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       // [ABOUT_MODULE] — MODULE 5
+       ============================================================ -->
+  <section id="about" class="section">
+    <div class="module-header">
+      <button class="back-btn" onclick="navigateTo('home')">&#60; RETOUR AU TERMINAL</button>
+      <h2>// OPERATIVE PROFILE — CLASSIFIED LEVEL 3</h2>
+      <p class="module-subtitle typewrite">ACCESSING SECURE PERSONNEL FILE...</p>
+    </div>
+
+    <div class="about-layout">
+      <div>
+        <div class="avatar-frame">
+          <div class="avatar-placeholder">◉</div>
+          <div class="avatar-label">// SCAN ID: OP-2024-V</div>
+        </div>
+      </div>
+
+      <div>
+        <p class="about-bio stagger-item typewrite">
+          Artiste 3D passionné par la création d'univers immersifs et de designs futuristes.
+          Spécialisé dans le hard-surface modeling, le rendu photoréaliste et les environnements
+          inspirés de la science-fiction. Chaque projet est une exploration visuelle, mêlant
+          rigueur technique et direction artistique audacieuse.
+        </p>
+
+        <div class="about-skills stagger-item">
+          <div class="skills-label">SKILLS:</div>
+          <div class="tag-list">
+            <span class="tag">3D MODELING</span>
+            <span class="tag">RENDERING</span>
+            <span class="tag">ANIMATION</span>
+            <span class="tag">TEXTURING</span>
+            <span class="tag">LIGHTING</span>
+            <span class="tag">UNWRAPING</span>
+            <span class="tag">SCULPTING</span>
+            <span class="tag">VR:AR</span>
+          </div>
+        </div>
+
+        <div class="timeline stagger-item">
+          <div class="timeline-entry">
+            <span class="timeline-year">[2018]</span>
+            <p class="timeline-text typewrite">— Début 3D</p>
+          </div>
+          <div class="timeline-entry">
+            <span class="timeline-year">[2019]</span>
+            <p class="timeline-text typewrite">— Artiste Plasticien (Cobalt Fx)</p>
+          </div>
+          <div class="timeline-entry">
+            <span class="timeline-year">[2021]</span>
+            <p class="timeline-text typewrite">— 3D Environment Artist (BYN.R Studio) sur UE4</p>
+          </div>
+          <div class="timeline-entry">
+            <span class="timeline-year">[2022]</span>
+            <p class="timeline-text typewrite">— Artiste 3D / QA Engineer (Dassault Systèmes)</p>
+          </div>
+          <div class="timeline-entry">
+            <span class="timeline-year">[2023]</span>
+            <p class="timeline-text typewrite">— 3D Character & Props Artist (Dassault) / Ornatrix</p>
+          </div>
+          <div class="timeline-entry">
+            <span class="timeline-year">[2024]</span>
+            <p class="timeline-text typewrite">— Freelance / Conception d'airsoft customisé</p>
+          </div>
+        </div>
+
+        <div class="about-cta stagger-item">
+          <span class="cta-prefix">> </span>Actuellement disponible pour un poste, des missions freelance,
+          collaborations
+          créatives et projets ambitieux. Ouvert à toute proposition.
+        </div>
+      </div>
+    </div>
+
+    <!-- // [CV_INTEGRATED] — Curriculum Vitae intégré -->
+    <hr class="module-divider">
+
+    <button class="cv-download-btn charge-border" onclick="alert('Placez votre CV PDF dans assets/cv.pdf')">
+      ↓ DOWNLOAD PDF VERSION
+    </button>
+
+    <!-- // [SKILLS_SECTION] -->
+    <div class="cv-section stagger-item">
+      <h3 class="cv-section-title typewrite">COMPÉTENCES &amp; LOGICIELS</h3>
+      <hr class="module-divider">
+
+      <div class="skills-grid">
+        <div class="skill-category">
+          <div class="category-title typewrite">// 3D / Sculpt</div>
+          <div class="software-card typewrite">Blender</div>
+          <div class="software-card typewrite">ZBrush</div>
+          <div class="software-card typewrite">Autodesk 3ds Max</div>
+          <div class="software-card typewrite">Autodesk Fusion 360</div>
+        </div>
+
+        <div class="skill-category">
+          <div class="category-title typewrite">// Texturing / Materials</div>
+          <div class="software-card typewrite">Substance Designer</div>
+          <div class="software-card typewrite">Substance Painter</div>
+        </div>
+
+        <div class="skill-category">
+          <div class="category-title typewrite">// Cloth / Simulation</div>
+          <div class="software-card typewrite">Marvelous Designer</div>
+        </div>
+
+        <div class="skill-category">
+          <div class="category-title typewrite">// Rendering / Presentation</div>
+          <div class="software-card typewrite">Marmoset Toolbag</div>
+        </div>
+
+        <div class="skill-category">
+          <div class="category-title typewrite">// Game Engines</div>
+          <div class="software-card typewrite">Unreal Engine</div>
+          <div class="software-card typewrite">Unity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- // [EXPERIENCE_SECTION] -->
+    <div class="cv-section stagger-item">
+      <h3 class="cv-section-title typewrite">EXPÉRIENCES</h3>
+      <hr class="module-divider">
+      <div class="cv-entry">
+        <div class="cv-entry-date">2023</div>
+        <div class="cv-entry-title typewrite">3D Character & Props Artist (Apprentissage)</div>
+        <div class="cv-entry-place">Dassault Systèmes — Vélizy-Villacoublay</div>
+        <div class="cv-entry-desc typewrite">
+          - Modélisation de personnages, vêtements et accessoires<br>
+          - Création de cheveux avec Ornatrix<br>
+          - Baking et intégration dans des outils internes<br>
+          - Optimisation des performances via LOD
+        </div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-entry-date">2022</div>
+        <div class="cv-entry-title typewrite">Artiste 3D / QA Engineer</div>
+        <div class="cv-entry-place">Dassault Systèmes — Vélizy-Villacoublay</div>
+        <div class="cv-entry-desc typewrite">
+          - Création de matériaux réalistes pour l’automobile<br>
+          - Conception de scénarios VR / Résolution de problèmes techniques<br>
+          - QA : gestion de bugs, rapports qualité et normes industrielles
+        </div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-entry-date">2021</div>
+        <div class="cv-entry-title typewrite">3D Environment Artist (Stage — 5 mois)</div>
+        <div class="cv-entry-place">BYN.R Studio — Strasbourg</div>
+        <div class="cv-entry-desc typewrite">
+          - Conception d’un lobby et d’un niveau VR sur UE4<br>
+          - Modélisation high poly / low poly et utilisation de trimsheets<br>
+          - Création de shaders et solutions techniques
+        </div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-entry-date">2019</div>
+        <div class="cv-entry-title typewrite">Artiste plasticien (Stage — 1 mois)</div>
+        <div class="cv-entry-place">Cobalt Fx — Montauban-de-Bretagne</div>
+        <div class="cv-entry-desc typewrite">
+          - Création d’objets et décors en résine<br>
+          - Réalisation de props pour la série Netflix "Family Business"<br>
+          - Pains factices Kayser et props pour musées/expos
+        </div>
+      </div>
+    </div>
+
+    <!-- // [EDUCATION_SECTION] -->
+    <div class="cv-section stagger-item">
+      <h3 class="cv-section-title typewrite">FORMATIONS</h3>
+      <hr class="module-divider">
+      <div class="cv-entry">
+        <div class="cv-entry-date">2024</div>
+        <div class="cv-entry-title typewrite">Mastère Game Art</div>
+        <div class="cv-entry-place">IIM Digital School — Nanterre</div>
+        <div class="cv-entry-desc typewrite">Spécialisation en création artistique pour le jeu vidéo.</div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-entry-date">2022</div>
+        <div class="cv-entry-title typewrite">Licence Infographie et Médias Interactifs</div>
+        <div class="cv-entry-place">Laval 3Di — Laval</div>
+        <div class="cv-entry-desc typewrite">Spécialisation Game Art (environnements et contenus vidéoludiques).</div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-entry-date">2018</div>
+        <div class="cv-entry-title typewrite">Baccalauréat Scientifique</div>
+        <div class="cv-entry-place">Lycée La Providence — Montauban</div>
+      </div>
+    </div>
+
+    <!-- // [NOTABLE_PROJECTS] -->
+    <div class="cv-section stagger-item">
+      <h3 class="cv-section-title">PROJETS NOTABLES</h3>
+      <hr class="module-divider">
+      <div class="cv-entry">
+        <div class="cv-entry-title" style="cursor:none;" onclick="openProject('P-001')">→ ORBITAL STATION THETA (P-001)
+        </div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-entry-title" style="cursor:none;" onclick="openProject('P-002')">→ XENOMORPH ENVIRONMENT (P-002)
+        </div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-entry-title" style="cursor:none;" onclick="openProject('P-003')">→ SYNTHETIC UNIT M-CLASS (P-003)
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       // [CONTACT_MODULE] — MODULE 7
+       ============================================================ -->
+  <section id="contact" class="section">
+    <div class="module-header">
+      <button class="back-btn" onclick="navigateTo('home')">&#60; RETOUR AU TERMINAL</button>
+      <h2>// OPEN CHANNEL — SEND MESSAGE</h2>
+      <p class="module-subtitle typewrite">ESTABLISHING SECURE CONNECTION...</p>
+    </div>
+
+    <div class="contact-email-row stagger-item">
+      <span class="email-label">TO :</span>
+      <span class="email-address" id="contactEmail">valentin.lothe.art@gmail.com</span>
+      <button class="copy-btn" id="copyEmailBtn" onclick="copyEmail()">COPY</button>
+    </div>
+
+    <form class="contact-form" id="contactForm" onsubmit="handleContactSubmit(event)">
+      <div class="form-row stagger-item">
+        <label class="form-label" for="contactFrom">FROM :</label>
+        <input type="email" class="form-input" id="contactFrom" name="from" placeholder="_________________________"
+          required>
+      </div>
+      <div class="form-row stagger-item">
+        <label class="form-label" for="contactSubject">SUBJECT :</label>
+        <input type="text" class="form-input" id="contactSubject" name="subject" placeholder="_________________________"
+          required>
+      </div>
+      <div class="form-row stagger-item">
+        <label class="form-label" for="contactMessage">MESSAGE :</label>
+        <textarea class="form-input form-textarea" id="contactMessage" name="message"
+          placeholder="Saisissez votre transmission..." required></textarea>
+      </div>
+      <div class="form-row">
+        <span class="form-label"></span>
+        <button type="submit" class="form-submit-btn charge-border">[ SEND TRANSMISSION ]</button>
+      </div>
+      <div class="form-row">
+        <span class="form-label"></span>
+        <div class="form-confirmation" id="formConfirmation">
+          > TRANSMISSION SENT SUCCESSFULLY.<br>
+          > AWAITING RESPONSE...<br>
+          > ESTIMATED REPLY TIME: 24-48H
+        </div>
+      </div>
+    </form>
+
+    <div class="social-ports stagger-item">
+      <a href="https://www.artstation.com/swiftshepard" target="_blank" rel="noopener"
+        class="social-port charge-border">
+        <span class="port-id">> PORT 01 —</span>
+        <span class="port-name">ARTSTATION</span>
+        <span class="port-action">[CONNECT →]</span>
+      </a>
+      <a href="https://www.linkedin.com/in/valentin-lothe/" target="_blank" rel="noopener"
+        class="social-port charge-border">
+        <span class="port-id">> PORT 02 —</span>
+        <span class="port-name">LINKEDIN</span>
+        <span class="port-action">[CONNECT →]</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- // [3D_VIEWER_WINDOW] — Floating draggable viewer -->
+  <div class="viewer3d-window" id="viewer3dWindow">
+    <div class="viewer3d-titlebar" id="viewer3dTitlebar">
+      <span class="viewer3d-title" id="viewer3dTitle">◨ 3D VIEWER — LOADING...</span>
+      <div class="viewer3d-toolbar">
+        <button class="viewer3d-tbtn" id="btnCRT" onclick="toggleCRT()" title="CRT Effect">CRT</button>
+        <button class="viewer3d-tbtn" id="btnWire" onclick="toggleWireframe()" title="Wireframe">WIRE</button>
+        <button class="viewer3d-tbtn" id="btnClay" onclick="toggleClay()" title="Clay Render">CLAY</button>
+      </div>
+      <div class="viewer3d-controls">
+        <button class="viewer3d-btn viewer3d-minimize" onclick="minimizeViewer()" title="Minimize">─</button>
+        <button class="viewer3d-btn viewer3d-maximize" onclick="toggleFullscreenViewer()" title="Fullscreen">□</button>
+        <button class="viewer3d-btn viewer3d-close" onclick="closeViewer()" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="viewer3d-body" id="viewer3dBody">
+      <canvas id="viewer3dCanvas"></canvas>
+      <div class="viewer3d-hud">
+        <span id="viewer3dInfo">VERTICES: — | FACES: —</span>
+      </div>
+      <div class="viewer3d-placeholder" id="viewer3dPlaceholder">
+        <span class="placeholder-icon">◨</span>
+        <span>INITIALIZING 3D ENGINE...</span>
+        <span class="viewer3d-hint">DRAG TO ROTATE · SCROLL TO ZOOM</span>
+      </div>
+      <!-- Clay comparison slider -->
+      <div class="clay-slider-overlay" id="claySliderOverlay" style="display:none;">
+        <div class="clay-slider-line" id="claySliderLine"></div>
+        <div class="clay-slider-handle" id="claySliderHandle">⟨⟩</div>
+        <div class="clay-label clay-label-left">CLAY</div>
+        <div class="clay-label clay-label-right">TEXTURED</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="main.js"></script>
+  <script type="module" src="viewer3d.js"></script>
+</body>
+
+</html>

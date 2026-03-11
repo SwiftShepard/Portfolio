@@ -1,0 +1,68 @@
+{
+  "projects": [
+    {
+      "id": "P-001",
+      "name": "ORBITAL STATION THETA",
+      "type": "3D / RENDER",
+      "year": 2024,
+      "status": "ONLINE",
+      "tags": ["blender", "cycles", "sci-fi", "hard-surface"],
+      "description": "Modular orbital station concept designed for deep space operations. Inspired by retro-futuristic aerospace engineering and brutalist architecture. Every panel, antenna, and docking port was individually modeled with attention to functional plausibility.",
+      "breakdown": {
+        "software": ["Blender", "Substance Painter", "Photoshop"],
+        "techniques": ["Hard Surface Modeling", "PBR Texturing", "Volumetric Lighting"],
+        "duration": "4 weeks"
+      },
+      "thumbnail": "assets/projects/P-001/thumb.jpg",
+      "images": [
+        "assets/projects/P-001/img1.jpg",
+        "assets/projects/P-001/img2.jpg",
+        "assets/projects/P-001/img3.jpg"
+      ],
+      "model3d": null
+    },
+    {
+      "id": "P-002",
+      "name": "XENOMORPH ENVIRONMENT",
+      "type": "ENVIRONMENT",
+      "year": 2024,
+      "status": "ONLINE",
+      "tags": ["blender", "unreal-engine", "environment", "horror"],
+      "description": "Dark, atmospheric corridor environment inspired by the derelict spacecraft aesthetic. Designed to evoke tension and claustrophobia through oppressive geometry, dim emergency lighting, and organic-mechanical hybrid surfaces.",
+      "breakdown": {
+        "software": ["Blender", "Unreal Engine 5", "Substance Designer"],
+        "techniques": ["Modular Kit Bashing", "Dynamic Lighting", "Decal Workflow"],
+        "duration": "6 weeks"
+      },
+      "thumbnail": "assets/projects/P-002/thumb.jpg",
+      "images": [
+        "assets/projects/P-002/img1.jpg",
+        "assets/projects/P-002/img2.jpg",
+        "assets/projects/P-002/img3.jpg",
+        "assets/projects/P-002/img4.jpg"
+      ],
+      "model3d": null
+    },
+    {
+      "id": "P-003",
+      "name": "SYNTHETIC UNIT M-CLASS",
+      "type": "CHARACTER",
+      "year": 2023,
+      "status": "ONLINE",
+      "tags": ["zbrush", "blender", "character", "sci-fi"],
+      "description": "High-detail synthetic humanoid character model. Blending organic anatomy with visible mechanical infrastructure beneath translucent skin panels. Designed as a real-time game-ready asset with full PBR material set.",
+      "breakdown": {
+        "software": ["ZBrush", "Blender", "Substance Painter", "Marmoset Toolbag"],
+        "techniques": ["Digital Sculpting", "Retopology", "Baking", "PBR Texturing"],
+        "duration": "5 weeks"
+      },
+      "thumbnail": "assets/projects/P-003/thumb.jpg",
+      "images": [
+        "assets/projects/P-003/img1.jpg",
+        "assets/projects/P-003/img2.jpg",
+        "assets/projects/P-003/img3.jpg"
+      ],
+      "model3d": null
+    }
+  ]
+}
