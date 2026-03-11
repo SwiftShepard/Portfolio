@@ -1,6 +1,6 @@
 // ============================================================
 // [SYSTEM_CORE] — ALIEN TERMINAL PORTFOLIO — MAIN.JS
-// WEYLAND-YUTANI CORP. — LOGIC SYSTEMS v2.4.1
+// STAR SHEPARD CORP. — LOGIC SYSTEMS v2.4.1
 // ============================================================
 
 // ── [GLOBAL_STATE] ──
@@ -104,16 +104,16 @@ function typewriteElements(container) {
     if (!el.getAttribute('data-tw')) {
       el.setAttribute('data-tw', text);
     }
-    
+
     el.textContent = '';
     el.style.visibility = 'visible';
-    
+
     const delay = elIndex * 300; // stagger between elements
 
     setTimeout(() => {
       let iteration = 0;
       // We process the text length. If text is long, we can advance faster.
-      const step = Math.max(0.3, text.length / 80); 
+      const step = Math.max(0.3, text.length / 80);
 
       if (el.twInterval) clearInterval(el.twInterval);
 
@@ -235,7 +235,7 @@ function navigateTo(sectionId) {
   if (currentSection !== 'boot') {
     document.body.classList.add('crt-degauss');
     if (typeof playGlitchSound === 'function') playGlitchSound();
-    
+
     // Remove the class after the animation finishes
     setTimeout(() => {
       document.body.classList.remove('crt-degauss');
@@ -271,7 +271,7 @@ function navigateTo(sectionId) {
     }
   }, delay);
 
-    // Reset keyboard focus when entering projects
+  // Reset keyboard focus when entering projects
   if (sectionId === 'projects') {
     keyboardFocusIndex = -1;
     clearKeyboardFocus();
@@ -804,28 +804,28 @@ function initAudioVisualizer() {
   const canvas = document.getElementById('audioVisualizer');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  
+
   function draw() {
     requestAnimationFrame(draw);
-    
+
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     let dataArray = null;
     if (typeof getAudioData === 'function') {
       dataArray = getAudioData();
     }
-    
+
     ctx.lineWidth = 1.5;
-    
+
     // Get the current green theme color
     const rootStyle = getComputedStyle(document.documentElement);
     ctx.strokeStyle = rootStyle.getPropertyValue('--green-primary').trim() || '#39ff7a';
     ctx.beginPath();
-    
+
     const sliceWidth = canvas.width / 256;
     let x = 0;
-    
+
     if (!dataArray) {
       // Draw flat line if no audio
       ctx.moveTo(0, canvas.height / 2);
@@ -835,11 +835,11 @@ function initAudioVisualizer() {
         // Normalize between -1 and 1
         const amplitude = (dataArray[i] - 128) / 128.0;
         // Amplify visually by 6x so quiet background hums are clearly visible
-        const amplified = amplitude * 6.0; 
-        
+        const amplified = amplitude * 6.0;
+
         // Clamp to canvas boundaries so it doesn't draw outside the box
         const y = Math.max(0, Math.min(canvas.height, (canvas.height / 2) + (amplified * canvas.height / 2)));
-        
+
         if (i === 0) {
           ctx.moveTo(x, y);
         } else {
@@ -848,10 +848,10 @@ function initAudioVisualizer() {
         x += sliceWidth;
       }
     }
-    
+
     ctx.stroke();
   }
-  
+
   draw();
 }
 
@@ -868,12 +868,12 @@ function initTelemetry() {
       const load = 10 + Math.random() * 85;
       bar.style.height = `${load}%`;
     });
-    
+
     // Vary the processing speed for irregular realism
     const nextUpdate = 150 + Math.random() * 300;
     setTimeout(animateBars, nextUpdate);
   }
-  
+
   // Start the loop
   animateBars();
 }
@@ -988,7 +988,7 @@ function textScramble(el) {
   if (!el.getAttribute('data-ts')) {
     el.setAttribute('data-ts', original);
   }
-  
+
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!<>-_\\/[]{}—=+*^?#';
   let iteration = 0;
   const speed = 30;
@@ -1005,7 +1005,7 @@ function textScramble(el) {
     }).join('');
 
     iteration += step;
-    
+
     if (iteration >= original.length) {
       el.textContent = original;
       clearInterval(el.scrambleInterval);
