@@ -1,6 +1,6 @@
 // ============================================================
 // [AUDIO_SYSTEM] — Web Audio API Sound Engine
-// WEYLAND-YUTANI CORP. — ACOUSTIC SYSTEMS v1.0
+// STAR SHEPARD CORP. — ACOUSTIC SYSTEMS v1.0
 // ============================================================
 
 let audioCtx = null;
@@ -13,7 +13,7 @@ let audioMuted = false;
 function initAudio() {
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
+
     globalAnalyser = audioCtx.createAnalyser();
     globalAnalyser.fftSize = 256;
 
