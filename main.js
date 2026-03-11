@@ -502,7 +502,6 @@ function openProject(id) {
               <ul>
                 <li>Logiciels: ${bd.software.join(', ')}</li>
                 <li>Techniques: ${bd.techniques.join(', ')}</li>
-                <li>Durée: ${bd.duration}</li>
               </ul>
             </div>
           </div>

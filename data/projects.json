@@ -1,38 +1,29 @@
 {
   "projects": [
     {
-      "id": "P-001",
-      "name": "ORBITAL STATION THETA",
-      "type": "3D / RENDER",
-      "year": 2024,
-      "status": "ONLINE",
-      "tags": ["blender", "cycles", "sci-fi", "hard-surface"],
-      "description": "Modular orbital station concept designed for deep space operations. Inspired by retro-futuristic aerospace engineering and brutalist architecture. Every panel, antenna, and docking port was individually modeled with attention to functional plausibility.",
-      "breakdown": {
-        "software": ["Blender", "Substance Painter", "Photoshop"],
-        "techniques": ["Hard Surface Modeling", "PBR Texturing", "Volumetric Lighting"],
-        "duration": "4 weeks"
-      },
-      "thumbnail": "assets/projects/P-001/thumb.jpg",
-      "images": [
-        "assets/projects/P-001/img1.jpg",
-        "assets/projects/P-001/img2.jpg",
-        "assets/projects/P-001/img3.jpg"
-      ],
-      "model3d": null
-    },
-    {
       "id": "P-002",
-      "name": "XENOMORPH ENVIRONMENT",
-      "type": "ENVIRONMENT",
-      "year": 2024,
+      "name": "Sig Sauer MCX",
+      "type": "3D / WEAPON",
+      "year": 2026,
       "status": "ONLINE",
-      "tags": ["blender", "unreal-engine", "environment", "horror"],
-      "description": "Dark, atmospheric corridor environment inspired by the derelict spacecraft aesthetic. Designed to evoke tension and claustrophobia through oppressive geometry, dim emergency lighting, and organic-mechanical hybrid surfaces.",
+      "tags": [
+        "Fusion 360",
+        "unreal-engine",
+        "environment",
+        "weapon"
+      ],
+      "description": "This project is a 3D recreation of the SIG Sauer MCX, developed to explore a workflow combining CAD modeling with a modern real-time game asset pipeline. The modeling process started in Fusion 360, which allowed me to build the weapon using precise mechanical forms and clean hard-surface geometry. The model was then transferred to Autodesk 3ds Max, where the optimized low-poly version was created and prepared for baking. Additional surface adjustments and small imperfections were introduced in ZBrush to reduce the overly perfect CAD appearance and add subtle realism. The baking process was handled in Marmoset Toolbag, generating the maps required for the texturing stage. The materials were then created in Substance 3D Painter, focusing on realistic metal surfaces, wear, and manufacturing details. The final asset was imported into Unreal Engine, where the lighting and real-time rendering were used to present the final result.",
       "breakdown": {
-        "software": ["Blender", "Unreal Engine 5", "Substance Designer"],
-        "techniques": ["Modular Kit Bashing", "Dynamic Lighting", "Decal Workflow"],
-        "duration": "6 weeks"
+        "software": [
+          "Fusion 360",
+          "Marmoset Toolbag",
+          "Substance Painter"
+        ],
+        "techniques": [
+          "Hard Surface Modeling",
+          "PBR Texturing",
+          "Volumetric Lighting"
+        ]
       },
       "thumbnail": "assets/projects/P-002/thumb.jpg",
       "images": [
@@ -44,23 +35,35 @@
       "model3d": null
     },
     {
-      "id": "P-003",
-      "name": "SYNTHETIC UNIT M-CLASS",
-      "type": "CHARACTER",
-      "year": 2023,
+      "id": "P-001",
+      "name": "PPSH-41",
+      "type": "3D / WEAPON",
+      "year": 2024,
       "status": "ONLINE",
-      "tags": ["zbrush", "blender", "character", "sci-fi"],
-      "description": "High-detail synthetic humanoid character model. Blending organic anatomy with visible mechanical infrastructure beneath translucent skin panels. Designed as a real-time game-ready asset with full PBR material set.",
+      "tags": [
+        "3ds max",
+        "Marmoset Toolbag",
+        "WW2",
+        "hard-surface"
+      ],
+      "description": "PPSH-41 weapon model designed to regain the motherland. one 4k material for the weapon, one 2k material for each magazine and 50k tris in total.",
       "breakdown": {
-        "software": ["ZBrush", "Blender", "Substance Painter", "Marmoset Toolbag"],
-        "techniques": ["Digital Sculpting", "Retopology", "Baking", "PBR Texturing"],
-        "duration": "5 weeks"
+        "software": [
+          "3ds max",
+          "Marmoset Toolbag",
+          "Substance Painter"
+        ],
+        "techniques": [
+          "Hard Surface Modeling",
+          "PBR Texturing",
+          "Volumetric Lighting"
+        ]
       },
-      "thumbnail": "assets/projects/P-003/thumb.jpg",
+      "thumbnail": "assets/projects/P-001/thumb.jpg",
       "images": [
-        "assets/projects/P-003/img1.jpg",
-        "assets/projects/P-003/img2.jpg",
-        "assets/projects/P-003/img3.jpg"
+        "assets/projects/P-001/img1.jpg",
+        "assets/projects/P-001/img2.jpg",
+        "assets/projects/P-001/img3.jpg"
       ],
       "model3d": null
     }
