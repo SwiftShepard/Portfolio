@@ -1,6 +1,6 @@
 // ============================================================
 // [3D_VIEWER] — Three.js Floating Window Viewer
-// WEYLAND-YUTANI CORP. — VISUAL SYSTEMS v1.0
+// STAR SHEPARD CORP. — VISUAL SYSTEMS v1.0
 // ============================================================
 
 import * as THREE from 'three';
@@ -552,7 +552,7 @@ themeObserver.observe(document.documentElement, { attributes: true, attributeFil
 // ============================================================
 // [CRT_TOGGLE] — Enable/disable CRT post-processing
 // ============================================================
-window.toggleCRT = function() {
+window.toggleCRT = function () {
     crtEnabled = !crtEnabled;
     if (crtPass) crtPass.uniforms.crtStrength.value = crtEnabled ? 1.0 : 0.0;
     document.getElementById('btnCRT')?.classList.toggle('active', crtEnabled);
@@ -561,7 +561,7 @@ window.toggleCRT = function() {
 // ============================================================
 // [WIREFRAME_TOGGLE] — Swap materials between solid and wireframe
 // ============================================================
-window.toggleWireframe = function() {
+window.toggleWireframe = function () {
     wireframeEnabled = !wireframeEnabled;
     document.getElementById('btnWire')?.classList.toggle('active', wireframeEnabled);
 
@@ -600,7 +600,7 @@ const clayMaterial = new THREE.MeshStandardMaterial({
     metalness: 0.0,
 });
 
-window.toggleClay = function() {
+window.toggleClay = function () {
     clayEnabled = !clayEnabled;
     document.getElementById('btnClay')?.classList.toggle('active', clayEnabled);
 
