@@ -113,7 +113,7 @@ function typewriteElements(container) {
     setTimeout(() => {
       let iteration = 0;
       // We process the text length. If text is long, we can advance faster.
-      const step = Math.max(0.3, text.length / 80);
+      const step = Math.max(0.45, text.length / 53);
 
       if (el.twInterval) clearInterval(el.twInterval);
 
@@ -142,7 +142,7 @@ function typewriteElements(container) {
           el.textContent = text;
           clearInterval(el.twInterval);
         }
-      }, 24); // 25% faster than previous 30ms interval
+      }, 16); // 50% faster than previous 24ms interval
     }, delay);
   });
 }
@@ -992,7 +992,7 @@ function textScramble(el) {
   let iteration = 0;
   const speed = 30;
   // Advance by a fraction to keep the scramble effect visible longer
-  const step = Math.max(0.15, original.length / 150);
+  const step = Math.max(0.22, original.length / 100);
 
   if (el.scrambleInterval) clearInterval(el.scrambleInterval);
 
@@ -1004,12 +1004,11 @@ function textScramble(el) {
     }).join('');
 
     iteration += step;
-
     if (iteration >= original.length) {
       el.textContent = original;
       clearInterval(el.scrambleInterval);
     }
-  }, speed);
+  }, 20);
 }
 
 // ── [STAGGER_ANIMATION] ──
@@ -1019,7 +1018,7 @@ function triggerStagger(container) {
     item.classList.remove('visible');
     setTimeout(() => {
       item.classList.add('visible');
-    }, 80 + i * 60);
+    }, 50 + i * 40);
   });
 }
 

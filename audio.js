@@ -69,7 +69,7 @@ function startAmbient() {
     osc1.type = 'sine';
     osc1.frequency.value = 55;
     const osc1Gain = audioCtx.createGain();
-    osc1Gain.gain.value = 0.5;
+    osc1Gain.gain.value = 0.6;
     osc1.connect(osc1Gain);
     osc1Gain.connect(ambientGain);
     osc1.start();
