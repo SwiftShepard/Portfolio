@@ -829,6 +829,7 @@ a:hover {
   margin-bottom: 20px;
   opacity: 0.8;
   letter-spacing: 1px;
+  overflow: hidden;
 }
 
 .home-tagline {
@@ -2257,7 +2258,13 @@ body.glitch-mode .section {
 /* ============================================================
    // [RESPONSIVE_MODULE] — ADAPTIVE LAYOUT
    ============================================================ */
-@media (max-width: 900px) {
+
+/* ── [TABLET] ── ≤ 1024px */
+@media (max-width: 1024px) {
+  .section {
+    padding: 20px 24px;
+  }
+
   .project-detail-layout {
     grid-template-columns: 1fr;
   }
@@ -2271,39 +2278,235 @@ body.glitch-mode .section {
   }
 
   .ascii-logo {
-    font-size: 0.35rem;
+    font-size: 0.4rem;
+  }
+
+  .viewer3d-window {
+    width: 480px;
+    height: 360px;
+  }
+
+  .status-bar .status-left,
+  .status-bar .status-right {
+    gap: 12px;
+  }
+
+  .nav-item {
+    padding: 12px 16px;
+  }
+
+  .inline-detail-body {
+    grid-template-columns: 1fr;
   }
 }
 
+/* ── [MOBILE] ── ≤ 768px */
 @media (max-width: 768px) {
   html {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .section {
-    padding: 16px;
+    padding: 16px 14px;
+    padding-top: 44px;
   }
 
+  /* ── Status bar mobile ── */
   .status-bar {
-    font-size: 0.65rem;
-    padding: 0 10px;
+    font-size: 0.6rem;
+    padding: 0 8px;
     height: 28px;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
+  .status-bar .status-left,
+  .status-bar .status-right {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .status-bar .status-left span:nth-child(3),
+  .status-bar .status-left span:nth-child(5),
+  .status-bar .status-left span:nth-child(4) {
+    display: none;
+  }
+
+  .status-bar .status-separator {
+    display: none;
+  }
+
+  .audio-visualizer {
+    width: 50px;
+    height: 18px;
+  }
+
+  /* ── Home module ── */
+  .home-header {
+    padding-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .ascii-logo {
+    font-size: 0.3rem;
+    letter-spacing: 0;
+    margin-bottom: 12px;
+  }
+
+  .nav-menu {
+    padding: 10px 0;
+  }
+
+  .nav-item {
+    padding: 12px 12px;
+    font-size: 0.9rem;
+  }
+
+  .nav-item .nav-dots {
+    display: none;
+  }
+
+  .nav-item .nav-info {
+    font-size: 0.75rem;
+  }
+
+  /* ── Telemetry: hide on mobile ── */
+  .telemetry-widget {
+    display: none;
+  }
+
+  /* ── Boot screen ── */
+  #boot-screen {
+    padding: 24px 16px;
+  }
+
+  #boot-screen .boot-line {
+    font-size: 1rem;
+  }
+
+  .boot-skip {
+    bottom: 20px;
+    right: 16px;
+    font-size: 0.8rem;
+  }
+
+  /* ── Module headers ── */
+  .module-header {
+    padding-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  .module-header h2 {
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+  }
+
+  /* ── Projects module ── */
   .filter-bar {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
 
+  .filter-bar select,
+  .filter-bar input[type="text"] {
+    width: 100%;
+  }
+
+  .projects-table {
+    font-size: 0.8rem;
+  }
+
+  .projects-table thead th {
+    padding: 8px 8px;
+    font-size: 0.7rem;
+  }
+
+  .projects-table tbody td {
+    padding: 10px 8px;
+  }
+
   .projects-table .col-type,
-  .projects-table .col-year,
+  .projects-table .col-year {
+    display: none;
+  }
+
   .projects-table .col-arrow {
     display: none;
   }
 
-  .nav-item .nav-dots {
+  .projects-table .col-id {
+    width: 50px;
+  }
+
+  /* ── Inline detail ── */
+  .inline-detail-header {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .inline-detail-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .inline-detail-topbar {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 8px 12px;
+    font-size: 0.7rem;
+  }
+
+  .inline-detail-body {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .inline-detail-footer {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .inline-detail-footer button {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ── Project preview: hide on mobile (touch) ── */
+  .project-preview {
     display: none;
+  }
+
+  /* ── About module ── */
+  .about-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .about-layout .avatar-frame {
+    width: 180px;
+    height: 230px;
+    margin: 0 auto;
+  }
+
+  .about-cta {
+    font-size: 0.85rem;
+    padding: 12px;
+  }
+
+  .timeline {
+    padding-left: 16px;
+  }
+
+  /* ── Skills grid ── */
+  .skills-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .skill-item {
@@ -2320,35 +2523,21 @@ body.glitch-mode .section {
     max-width: 100%;
   }
 
-  .project-nav-footer {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .project-nav-btn {
+  /* ── CV entries ── */
+  .cv-download-btn {
     width: 100%;
     text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  html {
-    font-size: 12px;
+    justify-content: center;
   }
 
-  .ascii-logo {
-    font-size: 0.28rem;
-    letter-spacing: 0;
-  }
-
-  .module-header h2 {
-    font-size: 1.2rem;
+  /* ── Contact module ── */
+  .contact-form {
+    max-width: 100%;
   }
 
   .contact-email-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .form-row {
@@ -2359,6 +2548,117 @@ body.glitch-mode .section {
     width: auto;
     padding-top: 0;
     margin-bottom: 4px;
+  }
+
+  .form-submit-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ── Social ports ── */
+  .social-port {
+    padding: 10px 12px;
+  }
+
+  .social-port .port-id {
+    font-size: 0.7rem;
+    margin-right: 10px;
+  }
+
+  /* ── Project nav footer ── */
+  .project-nav-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .project-nav-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ── Viewer3d mobile ── */
+  .viewer3d-window {
+    width: 100vw;
+    height: 50vh;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .viewer3d-toolbar {
+    display: none;
+  }
+}
+
+/* ── [SMALL MOBILE] ── ≤ 480px */
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+
+  .ascii-logo {
+    font-size: 0.22rem;
+    letter-spacing: 0;
+    overflow: hidden;
+  }
+
+  .module-header h2 {
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+
+  .nav-item {
+    padding: 10px 8px;
+    font-size: 0.85rem;
+  }
+
+  .nav-item .nav-id {
+    margin-right: 8px;
+    font-size: 0.85rem;
+  }
+
+  .nav-item .nav-info {
+    font-size: 0.7rem;
+  }
+
+  /* Status bar: ultra compact */
+  .status-bar {
+    font-size: 0.55rem;
+    padding: 0 6px;
+  }
+
+  .rgb-toggle {
+    gap: 2px;
+  }
+
+  .rgb-check {
+    font-size: 0.55rem;
+  }
+
+  /* Projects table: even more compact */
+  .projects-table .col-status {
+    display: none;
+  }
+
+  /* Contact */
+  .contact-email-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .social-port .port-action {
+    display: none;
+  }
+
+  /* About */
+  .about-layout .avatar-frame {
+    width: 150px;
+    height: 200px;
+  }
+
+  .cv-entry {
+    padding-left: 12px;
   }
 }
 
