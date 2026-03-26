@@ -141,7 +141,9 @@
       "images": [
         "assets/projects/P-001/img1.jpg",
         "assets/projects/P-001/img2.jpg",
-        "assets/projects/P-001/img3.jpg""assets/projects/P-001/img4.jpg""assets/projects/P-001/img5.jpg"
+        "assets/projects/P-001/img3.jpg",
+        "assets/projects/P-001/img4.jpg",
+        "assets/projects/P-001/img5.jpg"
       ],
       "model3d": null
     }
