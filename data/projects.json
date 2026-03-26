@@ -1,7 +1,7 @@
 {
   "projects": [
     {
-      "id": "P-002",
+      "id": "P-004",
       "name": "Sig Sauer MCX",
       "type": "3D / WEAPON",
       "year": 2026,
@@ -9,28 +9,104 @@
       "tags": [
         "Fusion 360",
         "unreal-engine",
-        "environment",
+        "hard-surface",
         "weapon"
       ],
-      "description": "This project is a 3D recreation of the SIG Sauer MCX, developed to explore a workflow combining CAD modeling with a modern real-time game asset pipeline. The modeling process started in Fusion 360, which allowed me to build the weapon using precise mechanical forms and clean hard-surface geometry. The model was then transferred to Autodesk 3ds Max, where the optimized low-poly version was created and prepared for baking. Additional surface adjustments and small imperfections were introduced in ZBrush to reduce the overly perfect CAD appearance and add subtle realism. The baking process was handled in Marmoset Toolbag, generating the maps required for the texturing stage. The materials were then created in Substance 3D Painter, focusing on realistic metal surfaces, wear, and manufacturing details. The final asset was imported into Unreal Engine, where the lighting and real-time rendering were used to present the final result.",
+      "description": "A 3D recreation of the SIG Sauer MCX, developed to explore a workflow combining CAD modeling with a modern real-time game asset pipeline. The modeling process started in Fusion 360, which allowed me to build the weapon using precise mechanical forms and clean hard-surface geometry. The model was then transferred to Autodesk 3ds Max, where the optimized low-poly version was created and prepared for baking. Additional surface adjustments and small imperfections were introduced in ZBrush to reduce the overly perfect CAD appearance and add subtle realism. The baking process was handled in Marmoset Toolbag, generating the maps required for the texturing stage. The materials were then created in Substance 3D Painter, focusing on realistic metal surfaces, wear, and manufacturing details. The final asset was imported into Unreal Engine, where the lighting and real-time rendering were used to present the final result.",
       "breakdown": {
         "software": [
+          "3ds Max",
           "Fusion 360",
           "Marmoset Toolbag",
-          "Substance Painter"
+          "Substance Painter",
+          "Photoshop"
+        ],
+        "techniques": [
+          "CAD to Game Pipeline",
+          "Hard Surface Modeling",
+          "PBR Texturing",
+          "Real-Time Rendering"
+        ]
+      },
+      "thumbnail": "assets/projects/P-004/thumb.jpg",
+      "images": [
+        "assets/projects/P-004/img1.jpg",
+        "assets/projects/P-004/img2.jpg",
+        "assets/projects/P-004/img3.jpg",
+        "assets/projects/P-004/img4.jpg"
+      ],
+      "model3d": null
+    },
+    {
+      "id": "P-003",
+      "name": "EOTech EXPS3",
+      "type": "3D / ACCESSORY",
+      "year": 2026,
+      "status": "ONLINE",
+      "tags": [
+        "3ds Max",
+        "Substance Painter",
+        "Marmoset Toolbag",
+        "hard-surface",
+        "optic"
+      ],
+      "description": "A highly detailed recreation of the EOTech EXPS3 holographic sight, one of the most iconic optics used by military and law enforcement worldwide. The project focused on capturing the precision engineering of the real unit — from the distinctive hood geometry and adjustment turrets to the battery compartment and quick-detach lever. Every surface detail was carefully modeled, including the subtle casting textures, laser-engraved markings, and the internal holographic reticle housing. The texturing phase emphasized the contrast between the matte anodized aluminum body, polished lens coatings, and worn rubber accents, resulting in a production-ready game asset that balances visual fidelity with optimized geometry.",
+      "breakdown": {
+        "software": [
+          "3ds Max",
+          "Fusion 360",
+          "Marmoset Toolbag",
+          "Substance Painter",
+          "Photoshop"
         ],
         "techniques": [
           "Hard Surface Modeling",
           "PBR Texturing",
-          "Volumetric Lighting"
+          "High-to-Low Baking"
+        ]
+      },
+      "thumbnail": "assets/projects/P-003/thumb.jpg",
+      "images": [
+        "assets/projects/P-003/img1.jpg",
+        "assets/projects/P-003/img2.jpg",
+        "assets/projects/P-003/img3.jpg"
+      ],
+      "model3d": null
+    },
+    {
+      "id": "P-002",
+      "name": "PMAG x NATO Cartridge",
+      "type": "3D / ACCESSORY",
+      "year": 2026,
+      "status": "ONLINE",
+      "tags": [
+        "Fusion 360",
+        "Substance Painter",
+        "Marmoset Toolbag",
+        "hard-surface",
+        "props"
+      ],
+      "description": "A detailed study of the Magpul PMAG 30-round magazine paired with a NATO 5.56×45mm cartridge. This project was born from the desire to push material accuracy on seemingly simple objects — exploring how polymer, brass, copper, and steel all interact under controlled lighting. The PMAG was modeled in Fusion 360 to capture the precise injection-molded geometry, ribbed grip texture, and anti-tilt follower mechanism. The cartridge was built with attention to the primer pocket, case mouth crimp, and boat-tail bullet profile. Texturing in Substance Painter focused on micro-surface variation: the matte polymer with subtle mold flow lines, fingerprint smudges on brass casings, and the cold shimmer of a jacketed bullet tip. The final renders were composed in Marmoset Toolbag to highlight material separation and form language.",
+      "breakdown": {
+        "software": [
+          "3ds Max",
+          "Fusion 360",
+          "Marmoset Toolbag",
+          "Substance Painter",
+          "Photoshop"
+        ],
+        "techniques": [
+          "CAD Modeling",
+          "PBR Texturing",
+          "Material Study",
+          "Studio Lighting"
         ]
       },
       "thumbnail": "assets/projects/P-002/thumb.jpg",
       "images": [
         "assets/projects/P-002/img1.jpg",
         "assets/projects/P-002/img2.jpg",
-        "assets/projects/P-002/img3.jpg",
-        "assets/projects/P-002/img4.jpg"
+        "assets/projects/P-002/img3.jpg"
       ],
       "model3d": null
     },
@@ -38,20 +114,22 @@
       "id": "P-001",
       "name": "PPSH-41",
       "type": "3D / WEAPON",
-      "year": 2024,
+      "year": 2026,
       "status": "ONLINE",
       "tags": [
-        "3ds max",
+        "3ds Max",
         "Marmoset Toolbag",
         "WW2",
         "hard-surface"
       ],
-      "description": "PPSH-41 weapon model designed to regain the motherland. one 4k material for the weapon, one 2k material for each magazine and 50k tris in total.",
+      "description": "PPSH-41 weapon model designed to regain the motherland. One 4K material for the weapon, one 2K material for each magazine and 50K tris in total.",
       "breakdown": {
         "software": [
-          "3ds max",
+          "3ds Max",
+          "Fusion 360",
           "Marmoset Toolbag",
-          "Substance Painter"
+          "Substance Painter",
+          "Photoshop"
         ],
         "techniques": [
           "Hard Surface Modeling",
