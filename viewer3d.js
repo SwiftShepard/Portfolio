@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
@@ -133,12 +134,28 @@ function initViewer() {
 
     resizeViewer();
 
+    // ── [HDR_ENVIRONMENT] ── Load EXR for PBR image-based lighting
+    loadHDREnvironment();
+
     // ── [POST_PROCESSING] ── EffectComposer — always active for grain/scanlines
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
     crtPass = new ShaderPass(CRTShader);
     crtPass.enabled = true; // always on — crtStrength controls CRT-specific effects
     composer.addPass(crtPass);
+}
+
+// ── [LOAD_HDR] ── Load .exr environment map from /assets/
+function loadHDREnvironment() {
+    const exrLoader = new EXRLoader();
+    exrLoader.load('assets/env.exr', (texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.environment = texture; // PBR lighting (reflections, metalness, etc.)
+        // Keep solid bg color — don't set scene.background = texture
+        console.log('// [3D_VIEWER] — HDR environment loaded (assets/env.exr)');
+    }, undefined, (err) => {
+        console.warn('// [3D_VIEWER] — No HDR found at assets/env.exr, using default lights:', err.message || err);
+    });
 }
 
 // ── [RESIZE] ──

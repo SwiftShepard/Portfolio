@@ -62,8 +62,10 @@ function updateRGBTheme() {
   if (b) key += 'b';
   if (!key) key = 'none';
 
-  // Default green = no data-theme attribute needed
-  if (key === 'g') {
+  // Default white (rgb) = data-theme="rgb"
+  if (key === 'rgb') {
+    document.documentElement.setAttribute('data-theme', 'rgb');
+  } else if (key === 'g') {
     document.documentElement.removeAttribute('data-theme');
   } else {
     document.documentElement.setAttribute('data-theme', key);
@@ -77,7 +79,7 @@ function updateRGBTheme() {
 
 function restoreTheme() {
   const saved = localStorage.getItem('portfolio-rgb');
-  if (!saved || saved === 'g') return; // default green
+  if (!saved || saved === 'rgb') return; // default white (rgb)
 
   const rEl = document.getElementById('rgbR');
   const gEl = document.getElementById('rgbG');
@@ -369,6 +371,30 @@ function applyFilters() {
   renderProjectsTable(filtered);
 }
 
+// ============================================================
+// [LAZY_LOAD_SYSTEM] — Image cache & preloader
+// ============================================================
+const imageCache = new Map();
+
+function lazyLoadImage(src) {
+  if (imageCache.has(src)) return imageCache.get(src);
+  const promise = new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => { imageCache.set(src, Promise.resolve(img)); resolve(img); };
+    img.onerror = () => { imageCache.delete(src); reject(new Error('Load failed: ' + src)); };
+    img.src = src;
+  });
+  imageCache.set(src, promise);
+  return promise;
+}
+
+function preloadAdjacentImages(images, currentIndex) {
+  if (!images || images.length <= 1) return;
+  const next = (currentIndex + 1) % images.length;
+  const prev = (currentIndex - 1 + images.length) % images.length;
+  lazyLoadImage(images[next]);
+  if (prev !== next) lazyLoadImage(images[prev]);
+}
 // ── [PROJECT_PREVIEW] ──
 function showPreview(e, index) {
   const preview = document.getElementById('projectPreview');
@@ -380,17 +406,17 @@ function showPreview(e, index) {
 
   label.textContent = `// ${project.name}`;
 
-  // Try loading thumbnail
-  const testImg = new Image();
-  testImg.onload = () => {
-    img.src = project.thumbnail;
-    img.style.display = 'block';
-  };
-  testImg.onerror = () => {
-    // placeholder color if no image
+  // Lazy load thumbnail with cache
+  if (project.thumbnail) {
+    lazyLoadImage(project.thumbnail).then(loaded => {
+      img.src = loaded.src;
+      img.style.display = 'block';
+    }).catch(() => {
+      img.style.display = 'none';
+    });
+  } else {
     img.style.display = 'none';
-  };
-  testImg.src = project.thumbnail;
+  }
 
   preview.classList.add('visible');
   movePreview(e);
@@ -578,7 +604,7 @@ function closeInlineDetail(resetActive = true) {
   }
 }
 
-// // [INLINE_CAROUSEL] — image navigation within inline panel
+// // [INLINE_CAROUSEL] — image navigation within inline panel (lazy loaded)
 function updateInlineCarousel(project) {
   const img = document.getElementById('inlineCarouselImg');
   const placeholder = document.getElementById('inlineCarouselPlaceholder');
@@ -592,17 +618,20 @@ function updateInlineCarousel(project) {
     return;
   }
 
-  const testImg = new Image();
-  testImg.onload = () => {
-    if (img) { img.src = images[inlineCarouselIndex]; img.style.display = 'block'; }
+  // Show loading state
+  if (indicator) indicator.textContent = `IMG ${inlineCarouselIndex + 1}/${images.length}`;
+
+  // Lazy load current image with cache
+  lazyLoadImage(images[inlineCarouselIndex]).then(loaded => {
+    if (img) { img.src = loaded.src; img.style.display = 'block'; }
     if (placeholder) placeholder.style.display = 'none';
-  };
-  testImg.onerror = () => {
+  }).catch(() => {
     if (img) img.style.display = 'none';
     if (placeholder) placeholder.style.display = 'flex';
-  };
-  testImg.src = images[inlineCarouselIndex];
-  if (indicator) indicator.textContent = `IMG ${inlineCarouselIndex + 1}/${images.length}`;
+  });
+
+  // Preload adjacent images in background
+  preloadAdjacentImages(images, inlineCarouselIndex);
 }
 
 function inlineCarouselNav(dir) {
