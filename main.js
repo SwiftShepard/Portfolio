@@ -329,6 +329,15 @@ function initFilters() {
   const sortBy = document.getElementById('sortBy');
   const searchInput = document.getElementById('searchInput');
 
+  // Dynamically populate filter options from project types
+  const types = [...new Set(projects.map(p => p.type))].sort();
+  types.forEach(type => {
+    const opt = document.createElement('option');
+    opt.value = type;
+    opt.textContent = type;
+    filterType.appendChild(opt);
+  });
+
   filterType.addEventListener('change', applyFilters);
   sortBy.addEventListener('change', applyFilters);
   searchInput.addEventListener('input', applyFilters);

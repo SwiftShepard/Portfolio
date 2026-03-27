@@ -33,7 +33,8 @@
         "assets/projects/P-004/img1.jpg",
         "assets/projects/P-004/img2.jpg",
         "assets/projects/P-004/img3.jpg",
-        "assets/projects/P-004/img4.jpg"
+        "assets/projects/P-004/img4.jpg",
+        "assets/projects/P-004/img5.jpg"
       ],
       "model3d": null
     },
@@ -69,7 +70,9 @@
       "images": [
         "assets/projects/P-003/img1.jpg",
         "assets/projects/P-003/img2.jpg",
-        "assets/projects/P-003/img3.jpg"
+        "assets/projects/P-003/img3.jpg",
+        "assets/projects/P-003/img4.jpg",
+        "assets/projects/P-003/img5.jpg"
       ],
       "model3d": null
     },
