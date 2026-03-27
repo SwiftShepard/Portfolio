@@ -113,7 +113,7 @@
         "assets/projects/P-002/img4.jpg",
         "assets/projects/P-002/img5.jpg"
       ],
-      "model3d": null
+      "model3d": "assets/projects/P-002/model.glb"
     },
     {
       "id": "P-001",

@@ -10,6 +10,7 @@ import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import GUI from 'https://esm.sh/lil-gui';
 
 let scene, camera, renderer, controls, animationId;
 let composer = null;
@@ -131,6 +132,49 @@ function initViewer() {
     const rimLight = new THREE.PointLight(0xffffff, 0.5, 15);
     rimLight.position.set(0, 3, -5);
     scene.add(rimLight);
+
+    // --- LIGHTING GUI ---
+    const gui = new GUI({ title: 'Lighting Controls' });
+    gui.domElement.style.position = 'absolute';
+    gui.domElement.style.top = '40px';
+    gui.domElement.style.right = '10px';
+    gui.domElement.style.zIndex = '9999';
+
+    const viewerBody = document.getElementById('viewer3dBody');
+    if (viewerBody) viewerBody.appendChild(gui.domElement);
+
+    const tmFolder = gui.addFolder('Global / Set to ACES').open();
+    tmFolder.add(renderer, 'toneMappingExposure', 0, 10, 0.1).name('Exposure');
+    const bgFolder = tmFolder.addFolder('Background Color').close();
+    bgFolder.addColor({ color: '#1a1a1a' }, 'color').onChange(v => {
+        scene.background = new THREE.Color(v);
+    });
+
+    const lightsFolder = gui.addFolder('Lights Intensity').open();
+    lightsFolder.add(ambient, 'intensity', 0, 20, 0.1).name('Ambient Light');
+    lightsFolder.add(mainLight, 'intensity', 0, 50, 0.1).name('Main Light');
+    lightsFolder.add(fillLight, 'intensity', 0, 20, 0.1).name('Fill Light');
+    lightsFolder.add(rimLight, 'intensity', 0, 20, 0.1).name('Rim Light');
+
+    if ('environmentIntensity' in scene) {
+        // If Three.js r163+ is loaded, they can tweak env map intensity
+        lightsFolder.add(scene, 'environmentIntensity', 0, 20, 0.1).name('Env (HDRI)');
+    } else {
+        // Workaround for r160: modify material envMapIntensity directly since there is no scene-level scale
+        gui.envIntensity = 1.0;
+        lightsFolder.add(gui, 'envIntensity', 0, 20, 0.1).name('Env (HDRI)').onChange(v => {
+            scene.traverse(child => {
+                if (child.isMesh && child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(m => { m.envMapIntensity = v; m.needsUpdate = true; });
+                    } else {
+                        child.material.envMapIntensity = v;
+                        child.material.needsUpdate = true;
+                    }
+                }
+            });
+        });
+    }
 
     resizeViewer();
 
