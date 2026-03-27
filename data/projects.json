@@ -151,7 +151,7 @@
         "assets/projects/P-001/img5.jpg",
         "assets/projects/P-001/img6.jpg"
       ],
-      "model3d": null
+      "model3d": "assets/projects/P-001/model.mview"
     }
   ]
 }
