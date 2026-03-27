@@ -312,7 +312,9 @@ function renderProjectsTable(list) {
     <tr data-index="${i}" data-id="${p.id}"
         onclick="openProject('${p.id}')"
         onmouseenter="showPreview(event, ${i})"
-        onmouseleave="hidePreview()">
+        onmouseleave="hidePreview()"
+        class="stagger-row"
+        style="animation-delay: ${i * 50}ms">
       <td class="col-id">${p.id}</td>
       <td class="col-name">${p.name}</td>
       <td class="col-type">${p.type}</td>
@@ -516,7 +518,8 @@ function openProject(id) {
               <span class="placeholder-icon">◨</span>
               <span>NO IMAGE DATA</span>
             </div>
-            <img src="" alt="Project image" id="inlineCarouselImg" style="display:none;">
+            <img src="" alt="Project image" id="inlineCarouselImg" style="display:none;" onclick="openLightbox(this.src)">
+            <video id="inlineCarouselVideo" style="display:none;" autoplay loop muted playsinline onclick="toggleCarouselVideo()"></video>
           </div>
           <div class="inline-carousel-controls">
             <button class="carousel-btn" onclick="inlineCarouselNav(-1)">◂ PREV</button>
@@ -613,31 +616,51 @@ function closeInlineDetail(resetActive = true) {
   }
 }
 
-// // [INLINE_CAROUSEL] — image navigation within inline panel (lazy loaded)
+// // [INLINE_CAROUSEL] — image/video navigation within inline panel (lazy loaded)
+function isVideoFile(src) {
+  return /\.(mp4|webm|ogg)$/i.test(src);
+}
+
 function updateInlineCarousel(project) {
   const img = document.getElementById('inlineCarouselImg');
+  const video = document.getElementById('inlineCarouselVideo');
   const placeholder = document.getElementById('inlineCarouselPlaceholder');
   const indicator = document.getElementById('inlineCarouselIndicator');
   const images = project.images || [];
 
   if (!images.length) {
     if (img) img.style.display = 'none';
+    if (video) video.style.display = 'none';
     if (placeholder) placeholder.style.display = 'flex';
     if (indicator) indicator.textContent = 'IMG 0/0';
     return;
   }
 
-  // Show loading state
-  if (indicator) indicator.textContent = `IMG ${inlineCarouselIndex + 1}/${images.length}`;
+  const currentSrc = images[inlineCarouselIndex];
+  const isVideo = isVideoFile(currentSrc);
+  const label = isVideo ? 'VID' : 'IMG';
+  if (indicator) indicator.textContent = `${label} ${inlineCarouselIndex + 1}/${images.length}`;
 
-  // Lazy load current image with cache
-  lazyLoadImage(images[inlineCarouselIndex]).then(loaded => {
-    if (img) { img.src = loaded.src; img.style.display = 'block'; }
-    if (placeholder) placeholder.style.display = 'none';
-  }).catch(() => {
+  if (isVideo) {
+    // Show video, hide image
     if (img) img.style.display = 'none';
-    if (placeholder) placeholder.style.display = 'flex';
-  });
+    if (video) {
+      video.src = currentSrc;
+      video.style.display = 'block';
+      video.play().catch(() => {});
+    }
+    if (placeholder) placeholder.style.display = 'none';
+  } else {
+    // Show image, hide video
+    if (video) { video.pause(); video.style.display = 'none'; }
+    lazyLoadImage(currentSrc).then(loaded => {
+      if (img) { img.src = loaded.src; img.style.display = 'block'; }
+      if (placeholder) placeholder.style.display = 'none';
+    }).catch(() => {
+      if (img) img.style.display = 'none';
+      if (placeholder) placeholder.style.display = 'flex';
+    });
+  }
 
   // Preload adjacent images in background
   preloadAdjacentImages(images, inlineCarouselIndex);
@@ -650,6 +673,45 @@ function inlineCarouselNav(dir) {
   if (!images.length) return;
   inlineCarouselIndex = (inlineCarouselIndex + dir + images.length) % images.length;
   updateInlineCarousel(project);
+}
+
+// ── [VIDEO_TOGGLE] — Click to pause/play carousel video
+function toggleCarouselVideo() {
+  const video = document.getElementById('inlineCarouselVideo');
+  if (!video) return;
+  if (video.paused) {
+    video.play();
+  } else {
+    video.pause();
+  }
+}
+
+// ============================================================
+// [LIGHTBOX] — Fullscreen image viewer
+// ============================================================
+function openLightbox(src) {
+  if (!src) return;
+  let overlay = document.getElementById('lightboxOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'lightboxOverlay';
+    overlay.className = 'lightbox-overlay';
+    overlay.innerHTML = '<img id="lightboxImg" class="lightbox-img" alt="Fullscreen image">';
+    overlay.addEventListener('click', closeLightbox);
+    document.body.appendChild(overlay);
+  }
+  const img = document.getElementById('lightboxImg');
+  img.src = src;
+  overlay.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  const overlay = document.getElementById('lightboxOverlay');
+  if (overlay) {
+    overlay.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
 }
 
 // ============================================================
@@ -960,7 +1022,9 @@ function initKeyboard() {
         break;
       case 'Escape':
         e.preventDefault();
-        if (expandedProjectId) {
+        if (document.getElementById('lightboxOverlay')?.classList.contains('visible')) {
+          closeLightbox();
+        } else if (expandedProjectId) {
           closeInlineDetail();
         } else if (currentSection === 'project-view') {
           navigateTo('projects');
