@@ -25,13 +25,8 @@
   <script>
     (function () { emailjs.init({ publicKey: '8cGoJCGjx012ICJvG' }); })();
   </script>
-  <!-- // [THREE_JS] — 3D Viewer -->
-  <script type="importmap">
-    { "imports": {
-      "three": "https://esm.sh/three@0.160.0",
-      "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
-    }}
-  </script>
+  <!-- // [MARMOSET_VIEWER] -->
+  <script src="https://viewer.marmoset.co/main/marmoset.js"></script>
 </head>
 
 <body>
@@ -545,9 +540,7 @@
     <div class="viewer3d-titlebar" id="viewer3dTitlebar">
       <span class="viewer3d-title" id="viewer3dTitle">◨ 3D VIEWER — LOADING...</span>
       <div class="viewer3d-toolbar">
-        <button class="viewer3d-tbtn" id="btnCRT" onclick="toggleCRT()" title="CRT Effect">CRT</button>
-        <button class="viewer3d-tbtn" id="btnWire" onclick="toggleWireframe()" title="Wireframe">WIRE</button>
-        <button class="viewer3d-tbtn" id="btnClay" onclick="toggleClay()" title="Clay Render">CLAY</button>
+        <!-- Buttons removed for Marmoset internal UI -->
       </div>
       <div class="viewer3d-controls">
         <button class="viewer3d-btn viewer3d-minimize" onclick="minimizeViewer()" title="Minimize">─</button>
@@ -556,28 +549,13 @@
       </div>
     </div>
     <div class="viewer3d-body" id="viewer3dBody">
-      <canvas id="viewer3dCanvas"></canvas>
-      <div class="viewer3d-hud">
-        <span id="viewer3dInfo">VERTICES: — | FACES: —</span>
-      </div>
-      <div class="viewer3d-placeholder" id="viewer3dPlaceholder">
-        <span class="placeholder-icon">◨</span>
-        <span>INITIALIZING 3D ENGINE...</span>
-        <span class="viewer3d-hint">DRAG TO ROTATE · SCROLL TO ZOOM</span>
-      </div>
-      <!-- Clay comparison slider -->
-      <div class="clay-slider-overlay" id="claySliderOverlay" style="display:none;">
-        <div class="clay-slider-line" id="claySliderLine"></div>
-        <div class="clay-slider-handle" id="claySliderHandle">⟨⟩</div>
-        <div class="clay-label clay-label-left">CLAY</div>
-        <div class="clay-label clay-label-right">TEXTURED</div>
-      </div>
+      <!-- Marmoset WebViewer will be injected here -->
     </div>
   </div>
 
   <script src="audio.js"></script>
   <script src="main.js"></script>
-  <script type="module" src="viewer3d.js"></script>
+  <script src="viewer3d.js"></script>
 </body>
 
 </html>
