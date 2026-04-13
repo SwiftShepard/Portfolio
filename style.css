@@ -226,11 +226,7 @@
   color: #2a2a2a;
 }
 
-[data-theme="rgb"] .tag:hover {
-  border-color: #1a1a1a;
-  background: #1a1a1a;
-  color: #e8e5dd;
-}
+
 
 /* Fix text readability inside hardcoded black zones in light mode */
 [data-theme="rgb"] .avatar-label,
@@ -356,63 +352,33 @@
   color: #141414;
 }
 
-/* ── [RGB_TOGGLE] — Status bar RGB checkboxes ── */
-.rgb-toggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+/* ── [THEME_TOGGLE] — Status bar dark/light toggle ── */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  padding: 1px 8px;
   cursor: none;
-  user-select: none;
-}
-
-.rgb-check {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  cursor: none;
-  font-size: 0.65rem;
+  transition: all 0.2s;
+  line-height: 1.2;
   letter-spacing: 1px;
   font-family: var(--font-main);
 }
 
-.rgb-check input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  border: 1px solid var(--border);
-  background: var(--bg-primary);
-  cursor: none;
-  position: relative;
-  vertical-align: middle;
-  transition: all 0.2s;
+.theme-toggle:hover {
+  border-color: var(--green-primary);
+  color: var(--green-primary);
 }
 
-.rgb-r input:checked {
-  border-color: #ff5b5b;
-  background: #ff5b5b;
+[data-theme="rgb"] .theme-toggle {
+  border-color: #8a877f;
+  color: #444;
 }
 
-.rgb-g input:checked {
-  border-color: #39ff7a;
-  background: #39ff7a;
-}
-
-.rgb-b input:checked {
-  border-color: #5b9aff;
-  background: #5b9aff;
-}
-
-.rgb-r span {
-  color: #ff5b5b;
-}
-
-.rgb-g span {
-  color: #39ff7a;
-}
-
-.rgb-b span {
-  color: #5b9aff;
+[data-theme="rgb"] .theme-toggle:hover {
+  border-color: #1a1a1a;
+  color: #000;
 }
 
 /* // [TYPEWRITER_CURSOR] — Blinking block cursor */
@@ -1376,7 +1342,7 @@ a:hover {
 /* ── Body: carousel + info ── */
 .inline-detail-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 20px;
   padding: 20px;
 }
@@ -1390,7 +1356,7 @@ a:hover {
 .inline-carousel-view {
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   position: relative;
 }
@@ -1444,7 +1410,6 @@ a:hover {
 .project-preview {
   position: fixed;
   width: 280px;
-  height: 180px;
   background: var(--bg-module);
   border: 1px solid var(--green-primary);
   z-index: 9000;
@@ -1460,9 +1425,9 @@ a:hover {
 }
 
 .project-preview img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: auto;
 }
 
 .project-preview .preview-label {
@@ -1638,13 +1603,7 @@ a:hover {
   position: relative;
 }
 
-/* // [JUICY] — Tag glow on hover */
-.tag:hover {
-  border-color: var(--green-primary);
-  color: var(--green-primary);
-  box-shadow: 0 0 8px rgba(57, 255, 122, 0.15), inset 0 0 8px rgba(57, 255, 122, 0.05);
-  transform: translateY(-1px);
-}
+
 
 /* ── [PREV/NEXT_PROJECT] ── */
 .project-nav-footer {
@@ -2645,13 +2604,7 @@ body.glitch-mode .section {
     padding: 0 6px;
   }
 
-  .rgb-toggle {
-    gap: 2px;
-  }
 
-  .rgb-check {
-    font-size: 0.55rem;
-  }
 
   /* Projects table: even more compact */
   .projects-table .col-status {
@@ -2691,12 +2644,15 @@ body.glitch-mode .section {
   bottom: 40px;
   width: 640px;
   height: 480px;
+  min-width: 320px;
+  min-height: 240px;
   background: var(--bg-primary);
   border: 1px solid var(--border-bright);
   z-index: 10000;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 1px var(--green-primary);
   transition: width 0.3s ease, height 0.3s ease, left 0.3s ease, top 0.3s ease, right 0.3s ease, bottom 0.3s ease;
   overflow: hidden;
+  resize: both;
 }
 
 .viewer3d-window.fullscreen {
@@ -2747,13 +2703,13 @@ body.glitch-mode .section {
 }
 
 .viewer3d-btn {
-  width: 18px;
-  height: 18px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--border);
   background: none;
   color: var(--text-secondary);
   font-family: var(--font-main);
-  font-size: 0.6rem;
+  font-size: 0.9rem;
   cursor: none;
   display: flex;
   align-items: center;
@@ -2841,27 +2797,90 @@ body.glitch-mode .section {
   letter-spacing: 1px;
 }
 
-/* ── [INLINE_3D_BUTTON] ── */
-.inline-3d-btn {
-  background: none;
-  border: 1px solid var(--green-primary);
-  color: var(--green-primary);
-  font-family: var(--font-main);
-  font-size: 0.75rem;
-  padding: 4px 12px;
+/* ── [INLINE_3D_CTA] — Strong call-to-action for 3D viewer ── */
+.inline-3d-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: auto;
+  padding: 14px 20px;
+  background: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  color: #e8e5dd;
+  font-family: var(--font-system);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
   cursor: none;
-  letter-spacing: 1px;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
 }
 
-.inline-3d-btn:hover {
-  background: var(--green-primary);
-  color: var(--bg-primary);
-  box-shadow: 0 0 12px rgba(57, 255, 122, 0.3);
+.inline-3d-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  transition: left 0.5s ease;
 }
 
-.inline-3d-btn:active {
-  transform: scale(0.96);
+.inline-3d-cta:hover::before {
+  left: 100%;
+}
+
+.inline-3d-cta:hover {
+  background: #2a2a2a;
+  border-color: #444;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255,255,255,0.05);
+  transform: translateY(-1px);
+}
+
+.inline-3d-cta:active {
+  transform: scale(0.98) translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.inline-3d-cta .cta-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.inline-3d-cta:hover .cta-icon {
+  transform: scale(1.15);
+}
+
+.inline-3d-cta .cta-label {
+  flex: 1;
+  text-align: center;
+}
+
+.inline-3d-cta .cta-arrow {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.inline-3d-cta:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+/* Light mode overrides */
+[data-theme="rgb"] .inline-3d-cta {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #e8e5dd;
+}
+
+[data-theme="rgb"] .inline-3d-cta:hover {
+  background: #333;
+  border-color: #555;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0,0,0,0.1);
 }
 
 .inline-detail-actions {
@@ -3145,29 +3164,7 @@ body.glitch-mode .section {
   overflow: hidden;
 }
 
-.software-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 3px;
-  height: 100%;
-  background: var(--green-primary);
-  transform: scaleY(0);
-  transform-origin: bottom;
-  transition: transform 0.2s ease-out;
-}
 
-.software-card:hover {
-  background: rgba(57, 255, 122, 0.05);
-  border-color: var(--green-primary);
-  transform: translateX(4px);
-  box-shadow: 0 0 15px rgba(57, 255, 122, 0.1);
-}
-
-.software-card:hover::before {
-  transform: scaleY(1);
-}
 
 [data-theme="rgb"] .category-title {
   color: #1a1a1a;
@@ -3180,15 +3177,7 @@ body.glitch-mode .section {
   color: #1a1a1a;
 }
 
-[data-theme="rgb"] .software-card::before {
-  background: #1a1a1a;
-}
 
-[data-theme="rgb"] .software-card:hover {
-  background: #dfdcd4;
-  border-color: #1a1a1a;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
 
 /* ============================================================
    // [CAROUSEL_VIDEO] — Video support in carousel

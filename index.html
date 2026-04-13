@@ -54,19 +54,7 @@
       <span>OPERATOR: <span class="status-online">VISITOR</span></span>
       <span class="status-separator">|</span>
       <span>MODULE: <span id="statusModule">HOME</span></span>
-      <span class="status-separator">|</span>
-      <div class="rgb-toggle">
-        <label class="rgb-check rgb-r"><input type="checkbox" id="rgbR" checked
-            onchange="updateRGBTheme()"><span>R</span></label>
-        <label class="rgb-check rgb-g"><input type="checkbox" id="rgbG" checked
-            onchange="updateRGBTheme()"><span>G</span></label>
-        <label class="rgb-check rgb-b"><input type="checkbox" id="rgbB" checked
-            onchange="updateRGBTheme()"><span>B</span></label>
-      </div>
-      <span class="status-separator">|</span>
-      <canvas id="audioVisualizer" class="audio-visualizer" width="80" height="24"></canvas>
-      <span class="status-separator">|</span>
-      <button class="audio-toggle" id="audioToggleBtn" onclick="toggleAudioMute()" title="Mute audio">🔊</button>
+
     </div>
   </header>
 
@@ -172,8 +160,6 @@
       </select>
       <label for="sortBy">SORT:</label>
       <select id="sortBy">
-        <option value="date-desc">DATE ↓</option>
-        <option value="date-asc">DATE ↑</option>
         <option value="name">NAME</option>
       </select>
       <label for="searchInput">SEARCH:</label>
@@ -186,7 +172,7 @@
           <th>ID</th>
           <th>NAME</th>
           <th class="col-type">TYPE</th>
-          <th class="col-year">YEAR</th>
+
           <th>STATUS</th>
           <th class="col-arrow"></th>
         </tr>
@@ -214,7 +200,6 @@
 
     <div class="project-detail-meta" id="projectViewMeta">
       <span>TYPE: <span class="meta-value" id="pvType">--</span></span>
-      <span>YEAR: <span class="meta-value" id="pvYear">--</span></span>
       <span>STATUS: <span class="meta-value" id="pvStatus">--</span></span>
     </div>
 
@@ -552,6 +537,7 @@
       <!-- Marmoset WebViewer will be injected here -->
     </div>
   </div>
+
 
   <script src="audio.js"></script>
   <script src="main.js"></script>

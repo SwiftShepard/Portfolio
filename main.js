@@ -30,7 +30,7 @@ console.log('%c' + [
 
 // ── [INIT] ──
 document.addEventListener('DOMContentLoaded', () => {
-  initAudioVisualizer();
+
   initCursor();
   initBackgroundText();
   initTelemetry();
@@ -44,54 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initClock();
   initKeyboard();
   initKonami();
-  restoreTheme();
+
   updateFavicon();
 });
 
-// ============================================================
-// [THEME_SYSTEM] — RGB combinatorial themes
-// ============================================================
-function updateRGBTheme() {
-  const r = document.getElementById('rgbR').checked;
-  const g = document.getElementById('rgbG').checked;
-  const b = document.getElementById('rgbB').checked;
 
-  let key = '';
-  if (r) key += 'r';
-  if (g) key += 'g';
-  if (b) key += 'b';
-  if (!key) key = 'none';
-
-  // Default white (rgb) = data-theme="rgb"
-  if (key === 'rgb') {
-    document.documentElement.setAttribute('data-theme', 'rgb');
-  } else if (key === 'g') {
-    document.documentElement.removeAttribute('data-theme');
-  } else {
-    document.documentElement.setAttribute('data-theme', key);
-  }
-  localStorage.setItem('portfolio-rgb', key);
-  // Glitch sound on theme change
-  if (typeof playGlitchSound === 'function') playGlitchSound();
-  // Update favicon color
-  updateFavicon();
-}
-
-function restoreTheme() {
-  const saved = localStorage.getItem('portfolio-rgb');
-  if (!saved || saved === 'rgb') return; // default white (rgb)
-
-  const rEl = document.getElementById('rgbR');
-  const gEl = document.getElementById('rgbG');
-  const bEl = document.getElementById('rgbB');
-
-  rEl.checked = saved.includes('r');
-  gEl.checked = saved.includes('g');
-  bEl.checked = saved.includes('b');
-  if (saved === 'none') { rEl.checked = false; gEl.checked = false; bEl.checked = false; }
-
-  updateRGBTheme();
-}
 
 // ============================================================
 // [TYPEWRITER] — Text appears character by character
@@ -318,7 +275,6 @@ function renderProjectsTable(list) {
       <td class="col-id">${p.id}</td>
       <td class="col-name">${p.name}</td>
       <td class="col-type">${p.type}</td>
-      <td class="col-year">${p.year}</td>
       <td class="col-status"><span class="status-badge">${p.status}</span></td>
       <td class="col-arrow">→</td>
     </tr>
@@ -368,12 +324,6 @@ function applyFilters() {
 
   // Sort
   switch (sort) {
-    case 'date-desc':
-      filtered.sort((a, b) => b.year - a.year);
-      break;
-    case 'date-asc':
-      filtered.sort((a, b) => a.year - b.year);
-      break;
     case 'name':
       filtered.sort((a, b) => a.name.localeCompare(b.name));
       break;
@@ -499,7 +449,6 @@ function openProject(id) {
       <div class="inline-detail-header">
         <span class="inline-detail-scanning" id="inlineScanText">ACCESSING FILE ${project.id}...</span>
         <div class="inline-detail-actions">
-          <button class="inline-3d-btn" onclick="openViewer('${project.id}')">[ ◨ VIEW 3D ]</button>
           <button class="inline-close-btn" onclick="closeInlineDetail()">[ CLOSE — ESC ]</button>
         </div>
       </div>
@@ -507,7 +456,6 @@ function openProject(id) {
       <div class="inline-detail-topbar">
         <span class="inline-meta">ID: <strong>${project.id}</strong></span>
         <span class="inline-meta">TYPE: <strong>${project.type}</strong></span>
-        <span class="inline-meta">YEAR: <strong>${project.year}</strong></span>
         <span class="inline-meta">STATUS: <strong>${project.status}</strong></span>
       </div>
 
@@ -552,6 +500,12 @@ function openProject(id) {
               </div>
             </div>
           </div>
+
+          <button class="inline-3d-cta" onclick="openViewer('${project.id}')">
+            <span class="cta-icon">◨</span>
+            <span class="cta-label">VIEW 3D MODEL</span>
+            <span class="cta-arrow">→</span>
+          </button>
         </div>
       </div>
 
@@ -594,10 +548,10 @@ function openProject(id) {
   // // [CAROUSEL_INIT] — load first image
   updateInlineCarousel(project);
 
-  // Scroll the detail row into view
+  // Scroll the detail row into view to center it after transition
   setTimeout(() => {
-    detailRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 150);
+    detailRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 420);
 }
 
 function closeInlineDetail(resetActive = true) {
@@ -896,63 +850,7 @@ function initBackgroundText() {
   el.textContent = text;
 }
 
-// ============================================================
-// [AUDIO_VISUALIZER] — Status Bar Oscilloscope
-// ============================================================
-function initAudioVisualizer() {
-  const canvas = document.getElementById('audioVisualizer');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
 
-  function draw() {
-    requestAnimationFrame(draw);
-
-    // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    let dataArray = null;
-    if (typeof getAudioData === 'function') {
-      dataArray = getAudioData();
-    }
-
-    ctx.lineWidth = 1.5;
-
-    // Get the current green theme color
-    const rootStyle = getComputedStyle(document.documentElement);
-    ctx.strokeStyle = rootStyle.getPropertyValue('--green-primary').trim() || '#39ff7a';
-    ctx.beginPath();
-
-    const sliceWidth = canvas.width / 256;
-    let x = 0;
-
-    if (!dataArray) {
-      // Draw flat line if no audio
-      ctx.moveTo(0, canvas.height / 2);
-      ctx.lineTo(canvas.width, canvas.height / 2);
-    } else {
-      for (let i = 0; i < 256; i++) {
-        // Normalize between -1 and 1
-        const amplitude = (dataArray[i] - 128) / 128.0;
-        // Amplify visually by 6x so quiet background hums are clearly visible
-        const amplified = amplitude * 6.0;
-
-        // Clamp to canvas boundaries so it doesn't draw outside the box
-        const y = Math.max(0, Math.min(canvas.height, (canvas.height / 2) + (amplified * canvas.height / 2)));
-
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-        x += sliceWidth;
-      }
-    }
-
-    ctx.stroke();
-  }
-
-  draw();
-}
 
 // ============================================================
 // [TELEMETRY_WIDGET] — Animated CPU bars

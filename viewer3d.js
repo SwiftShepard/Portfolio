@@ -131,6 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
             win.style.transition = '';
         }
     });
+
+    // Handle CSS resize of the window
+    const bodyEl = document.getElementById('viewer3dBody');
+    if (bodyEl && window.ResizeObserver) {
+        const resizeObserver = new ResizeObserver(() => {
+            if (viewerOpen && !viewerMinimized && currentMarmosetViewer) {
+                resizeViewer();
+            }
+        });
+        resizeObserver.observe(bodyEl);
+    }
 });
 
 window.addEventListener('resize', () => {
