@@ -35,8 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initBackgroundText();
   initTelemetry();
   loadProjects();
-  // Contextual boot: short reconnect if already booted this session
-  if (sessionStorage.getItem('portfolio-booted')) {
+  // Contextual boot: short reconnect if already booted this session,
+  // or if arriving via a direct deep link (hash present)
+  const hasDeepLink = location.hash && location.hash.length > 1;
+  if (sessionStorage.getItem('portfolio-booted') || hasDeepLink) {
     startQuickBoot();
   } else {
     startBoot();
@@ -162,7 +164,7 @@ function finishBoot() {
   setTimeout(() => {
     bootScreen.style.display = 'none';
     document.getElementById('statusBar').style.display = 'flex';
-    navigateTo('home');
+    routeFromHash();
     // Start ambient sound after first interaction
     if (typeof startAmbient === 'function') startAmbient();
   }, 400);
@@ -187,8 +189,16 @@ function startQuickBoot() {
 // ============================================================
 // [NAVIGATION_SYSTEM] — SPA Router
 // ============================================================
-function navigateTo(sectionId) {
+function navigateTo(sectionId, pushHistory = true) {
   const allSections = document.querySelectorAll('.section');
+
+  // ── [URL_ROUTING] — sync hash with current section
+  if (pushHistory && currentSection !== 'boot') {
+    const newHash = sectionId === 'home' ? '' : `#${sectionId}`;
+    if (location.hash !== newHash) {
+      history.pushState(null, '', newHash || location.pathname);
+    }
+  }
 
   // // [CRT_DEGAUSS_TRANSITION]
   if (currentSection !== 'boot') {
@@ -418,6 +428,9 @@ function openProject(id) {
     return;
   }
 
+  // ── [URL_ROUTING] — deep link to this project
+  history.pushState(null, '', `#projects/${id}`);
+
   // // [CLOSE_PREVIOUS] — close any open panel first
   closeInlineDetail(false);
 
@@ -555,6 +568,11 @@ function openProject(id) {
 }
 
 function closeInlineDetail(resetActive = true) {
+  // ── [URL_ROUTING] — restore hash to projects list
+  if (location.hash.startsWith('#projects/')) {
+    history.pushState(null, '', '#projects');
+  }
+
   const existing = document.getElementById('inlineDetailRow');
   if (existing) {
     const wrapper = existing.querySelector('.inline-detail-wrapper');
@@ -896,6 +914,58 @@ function initClock() {
   update();
   setInterval(update, 1000);
 }
+
+// ============================================================
+// [URL_ROUTER] — Hash-based deep linking
+// ============================================================
+function routeFromHash() {
+  const hash = location.hash.slice(1); // strip leading #
+
+  if (!hash || hash === 'home') {
+    navigateTo('home', false);
+    return;
+  }
+
+  if (hash.startsWith('projects/')) {
+    const projectId = hash.split('/')[1];
+    navigateTo('projects', false);
+    // Wait for projects data to be ready, then expand the panel
+    const tryOpen = () => {
+      if (projects.length > 0) {
+        setTimeout(() => openProjectFromHash(projectId), 200);
+      } else {
+        setTimeout(tryOpen, 100);
+      }
+    };
+    tryOpen();
+    return;
+  }
+
+  if (['projects', 'about', 'contact'].includes(hash)) {
+    navigateTo(hash, false);
+    return;
+  }
+
+  // Unknown hash — fall back to home
+  navigateTo('home', false);
+}
+
+// Open a project without pushing another history entry (we already have the hash)
+function openProjectFromHash(id) {
+  const index = projects.findIndex(p => p.id === id);
+  if (index === -1) return;
+
+  // Temporarily block the history push inside openProject
+  const saved = location.hash;
+  openProject(id);
+  // openProject pushed a new entry; replace it so back button goes to #projects, not duplicates
+  history.replaceState(null, '', saved);
+}
+
+// ── [POPSTATE] — Browser back/forward button support
+window.addEventListener('popstate', () => {
+  if (bootComplete) routeFromHash();
+});
 
 // ============================================================
 // [KEYBOARD_NAVIGATION] — Input System
