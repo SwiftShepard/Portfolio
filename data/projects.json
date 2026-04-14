@@ -130,7 +130,7 @@
         "WW2",
         "hard-surface"
       ],
-      "description": "PPSH-41 weapon model designed to regain the motherland. One 4K material for the weapon, one 2K material for each magazine and 50K tris in total.",
+      "description": "A detailed recreation of the PPSh-41, the iconic Soviet submachine gun that became one of the most recognizable weapons of the Second World War. The project focused on capturing the weapon's distinctive silhouette — the ventilated barrel shroud, the drum magazine housing, and the wooden stock — while adhering to game-ready production constraints. The model was built in 3ds Max, combining high-poly sculpted details with an optimized low-poly base of 50K triangles total. A single 4K PBR material covers the entire weapon, with dedicated 2K materials for each magazine. Texturing in Substance Painter emphasized the contrast between the blued steel barrel, worn wooden grip, and the cold matte finish of the drum magazine — with particular attention to period-accurate wear patterns, oil stains, and impact marks that give the asset its historical character. Final presentation was composed in Marmoset Toolbag using volumetric lighting to reinforce the atmospheric quality of the piece.",
       "breakdown": {
         "software": [
           "3ds Max",
