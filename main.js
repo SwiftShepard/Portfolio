@@ -337,6 +337,15 @@ function applyFilters() {
     case 'name':
       filtered.sort((a, b) => a.name.localeCompare(b.name));
       break;
+    case 'year-desc':
+      filtered.sort((a, b) => (b.year || 0) - (a.year || 0));
+      break;
+    case 'year-asc':
+      filtered.sort((a, b) => (a.year || 0) - (b.year || 0));
+      break;
+    case 'type':
+      filtered.sort((a, b) => a.type.localeCompare(b.type));
+      break;
   }
 
   renderProjectsTable(filtered);
@@ -428,8 +437,10 @@ function openProject(id) {
     return;
   }
 
-  // ── [URL_ROUTING] — deep link to this project
-  history.pushState(null, '', `#projects/${id}`);
+  // ── [URL_ROUTING] — deep link to this project (suppressed during hash routing)
+  if (!_routingFromHash) {
+    history.pushState(null, '', `#projects/${id}`);
+  }
 
   // // [CLOSE_PREVIOUS] — close any open panel first
   closeInlineDetail(false);
@@ -568,8 +579,8 @@ function openProject(id) {
 }
 
 function closeInlineDetail(resetActive = true) {
-  // ── [URL_ROUTING] — restore hash to projects list
-  if (location.hash.startsWith('#projects/')) {
+  // ── [URL_ROUTING] — restore hash to projects list (suppressed during hash routing)
+  if (!_routingFromHash && location.hash.startsWith('#projects/')) {
     history.pushState(null, '', '#projects');
   }
 
@@ -918,6 +929,11 @@ function initClock() {
 // ============================================================
 // [URL_ROUTER] — Hash-based deep linking
 // ============================================================
+
+// Flag: suppresses history.pushState calls inside openProject / closeInlineDetail
+// while we are navigating programmatically from a hash URL.
+let _routingFromHash = false;
+
 function routeFromHash() {
   const hash = location.hash.slice(1); // strip leading #
 
@@ -926,40 +942,50 @@ function routeFromHash() {
     return;
   }
 
+  // ── Projects list (no specific project)
+  if (hash === 'projects') {
+    // If a panel is open, close it silently without touching the URL
+    if (expandedProjectId) {
+      const existing = document.getElementById('inlineDetailRow');
+      if (existing) {
+        const wrapper = existing.querySelector('.inline-detail-wrapper');
+        if (wrapper) { wrapper.style.maxHeight = '0px'; wrapper.classList.remove('expanded'); }
+        setTimeout(() => existing.remove(), 300);
+      }
+      expandedProjectId = null;
+      document.querySelectorAll('#projectsTableBody tr').forEach(r => r.classList.remove('row-active'));
+    }
+    navigateTo('projects', false);
+    return;
+  }
+
+  // ── Specific project deep link: #projects/P-001
   if (hash.startsWith('projects/')) {
     const projectId = hash.split('/')[1];
     navigateTo('projects', false);
-    // Wait for projects data to be ready, then expand the panel
+    _routingFromHash = true;
     const tryOpen = () => {
       if (projects.length > 0) {
-        setTimeout(() => openProjectFromHash(projectId), 200);
+        // 250ms: safely after the 150ms navigateTo transition
+        setTimeout(() => {
+          openProject(projectId);
+          _routingFromHash = false;
+        }, 250);
       } else {
-        setTimeout(tryOpen, 100);
+        setTimeout(tryOpen, 50);
       }
     };
     tryOpen();
     return;
   }
 
-  if (['projects', 'about', 'contact'].includes(hash)) {
+  if (['about', 'contact'].includes(hash)) {
     navigateTo(hash, false);
     return;
   }
 
   // Unknown hash — fall back to home
   navigateTo('home', false);
-}
-
-// Open a project without pushing another history entry (we already have the hash)
-function openProjectFromHash(id) {
-  const index = projects.findIndex(p => p.id === id);
-  if (index === -1) return;
-
-  // Temporarily block the history push inside openProject
-  const saved = location.hash;
-  openProject(id);
-  // openProject pushed a new entry; replace it so back button goes to #projects, not duplicates
-  history.replaceState(null, '', saved);
 }
 
 // ── [POPSTATE] — Browser back/forward button support
@@ -994,8 +1020,6 @@ function initKeyboard() {
           closeLightbox();
         } else if (expandedProjectId) {
           closeInlineDetail();
-        } else if (currentSection === 'project-view') {
-          navigateTo('projects');
         } else {
           navigateTo('home');
         }

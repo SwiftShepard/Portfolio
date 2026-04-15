@@ -161,6 +161,9 @@
       <label for="sortBy">SORT:</label>
       <select id="sortBy">
         <option value="name">NAME</option>
+        <option value="year-desc">YEAR ↓</option>
+        <option value="year-asc">YEAR ↑</option>
+        <option value="type">TYPE</option>
       </select>
       <label for="searchInput">SEARCH:</label>
       <input type="text" id="searchInput" placeholder="_______________" autocomplete="off">
@@ -181,68 +184,6 @@
         <!-- // [DYNAMIC_CONTENT] — Rendered by main.js -->
       </tbody>
     </table>
-  </section>
-
-  <!-- ============================================================
-       // [PROJECT_VIEW_MODULE] — MODULE 4
-       ============================================================ -->
-  <section id="project-view" class="section">
-    <div class="project-detail-header">
-      <button class="back-btn" onclick="navigateTo('projects')">&#60; BACK TO DATABASE</button>
-      <span style="color: var(--text-secondary); font-size: 0.85rem; padding-top: 50px;" id="projectViewId">PROJECT ID:
-        --</span>
-    </div>
-    <hr class="module-divider">
-
-    <h2 id="projectViewName"
-      style="font-family: var(--font-system); font-size: 1.4rem; color: var(--green-primary); margin-bottom: 8px; letter-spacing: 2px;">
-      --</h2>
-
-    <div class="project-detail-meta" id="projectViewMeta">
-      <span>TYPE: <span class="meta-value" id="pvType">--</span></span>
-      <span>STATUS: <span class="meta-value" id="pvStatus">--</span></span>
-    </div>
-
-    <div class="project-detail-layout">
-      <!-- // [CAROUSEL] -->
-      <div class="carousel-container" id="carouselContainer">
-        <div class="carousel-placeholder" id="carouselPlaceholder">
-          <span class="placeholder-icon">◨</span>
-          <span>NO IMAGE DATA AVAILABLE</span>
-          <span style="font-size:0.7rem; color: var(--text-secondary); margin-top:6px;">// place images in
-            assets/projects/P-XXX/</span>
-        </div>
-        <img src="" alt="Project image" id="carouselImg" style="display:none;">
-        <div class="carousel-controls">
-          <button class="carousel-btn" id="carouselPrev" onclick="carouselNav(-1)">&#60; PREV</button>
-          <span class="carousel-indicator" id="carouselIndicator">IMG 0/0</span>
-          <button class="carousel-btn" id="carouselNext" onclick="carouselNav(1)">NEXT &#62;</button>
-        </div>
-      </div>
-
-      <!-- // [INFO_PANEL] -->
-      <div class="project-info-panel">
-        <div class="info-section">
-          <div class="info-label">DESCRIPTION</div>
-          <div class="info-content" id="pvDescription">--</div>
-        </div>
-        <div class="info-section">
-          <div class="info-label">BREAKDOWN</div>
-          <div class="info-content" id="pvBreakdown">--</div>
-        </div>
-        <div class="info-section">
-          <div class="info-label">TAGS</div>
-          <div class="info-content">
-            <div class="tag-list" id="pvTags"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="project-nav-footer">
-      <button class="project-nav-btn" id="prevProjectBtn" onclick="adjacentProject(-1)">&#60; PREV PROJECT</button>
-      <button class="project-nav-btn" id="nextProjectBtn" onclick="adjacentProject(1)">NEXT PROJECT &#62;</button>
-    </div>
   </section>
 
   <!-- ============================================================
