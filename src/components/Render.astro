@@ -1,9 +1,10 @@
 ---
 // A 3D render served at full resolution, untouched: the original file, with no resize and no recompression,
 // so texture grain survives. Phones (where 4K cannot be seen) get a 1920 px copy at quality 95.
+// `vtName` names the image for cross-page view transitions (home tile -> project key art).
 import { getImage } from 'astro:assets';
 
-const { src, alt = '', class: className, loading = 'lazy', fetchpriority, phone = true } = Astro.props;
+const { src, alt = '', class: className, loading = 'lazy', fetchpriority, phone = true, vtName } = Astro.props;
 const small = phone && src.width > 1920 ? await getImage({ src, width: 1920, format: 'jpg', quality: 95 }) : null;
 ---
 <picture>
@@ -17,5 +18,6 @@ const small = phone && src.width > 1920 ? await getImage({ src, width: 1920, for
     loading={loading}
     fetchpriority={fetchpriority}
     decoding="async"
+    style={vtName ? `view-transition-name: ${vtName}` : undefined}
   />
 </picture>

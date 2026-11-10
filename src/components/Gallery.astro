@@ -1,15 +1,18 @@
 ---
 // Project gallery with a native <dialog> lightbox (arrows, Escape, click outside to close).
 // Renders are shown at full resolution; the lightbox opens the untouched original file.
+// Opening grows the image out of its thumbnail (FLIP with the Web Animations API) and closing
+// returns it there, so the viewer keeps track of where the image lives on the page.
 import Render from './Render.astro';
 
-const { name, items = [] } = Astro.props;
+// layout: "mosaic" (default: lead image, pairs of details) or "stack" (one render per row, for environments).
+const { name, items = [], layout = 'mosaic' } = Astro.props;
 const shots = items.map((g, i) => ({ ...g, full: g.image.src, alt: `${name}, render ${i + 1} of ${items.length}` }));
 ---
 {shots.length > 0 && (
   <section class="gallery" aria-labelledby="gallery-title" data-gallery>
     <h2 id="gallery-title" class="visually-hidden">Gallery</h2>
-    <ul class="grid">
+    <ul class:list={['grid', { stack: layout === 'stack' }]}>
       {shots.map((s, i) => {
         // First image full width; then pairs; a lone last image also spans the full width.
         const full = shots.length > 2 && (i === 0 || (i === shots.length - 1 && (shots.length - 1) % 2 === 1));
@@ -24,54 +27,151 @@ const shots = items.map((g, i) => ({ ...g, full: g.image.src, alt: `${name}, ren
     </ul>
 
     <dialog class="lightbox" aria-label="Image viewer">
+      <div class="lb-bg" aria-hidden="true"></div>
       <img class="lb-img" alt="" />
-      <p class="lb-count mono" aria-live="polite"></p>
-      <button type="button" class="lb-btn lb-prev" aria-label="Previous image"><span aria-hidden="true">←</span></button>
-      <button type="button" class="lb-btn lb-next" aria-label="Next image"><span aria-hidden="true">→</span></button>
-      <button type="button" class="lb-btn lb-close" aria-label="Close"><span aria-hidden="true">✕</span></button>
+      <p class="lb-count lb-ui mono" aria-live="polite"></p>
+      <button type="button" class="lb-btn lb-ui lb-prev" aria-label="Previous image"><span aria-hidden="true">←</span></button>
+      <button type="button" class="lb-btn lb-ui lb-next" aria-label="Next image"><span aria-hidden="true">→</span></button>
+      <button type="button" class="lb-btn lb-ui lb-close" aria-label="Close"><span aria-hidden="true">✕</span></button>
     </dialog>
   </section>
 )}
 
 <script>
+  // Curve and timings from the animate skill tables: drawer curve for the zoom (fast start, soft landing),
+  // modal-range durations, a short crossfade for prev / next, opacity only under reduced motion.
+  const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+  const OPEN_MS = 420;
+  const CLOSE_MS = 320;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /** Transform that places an element currently at `from` onto `to` (centres and size). */
+  function placeOn(to: DOMRect, from: DOMRect) {
+    const sx = to.width / from.width;
+    const sy = to.height / from.height;
+    const dx = to.left + to.width / 2 - (from.left + from.width / 2);
+    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+    return `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+  }
+
   document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
     const shots = Array.from(root.querySelectorAll<HTMLButtonElement>('.shot'));
     const dlg = root.querySelector<HTMLDialogElement>('.lightbox');
     const img = root.querySelector<HTMLImageElement>('.lb-img');
+    const bg = root.querySelector<HTMLElement>('.lb-bg');
+    const ui = Array.from(root.querySelectorAll<HTMLElement>('.lb-ui'));
     const count = root.querySelector<HTMLElement>('.lb-count');
-    if (!dlg || !img) return;
-    let index = 0;
-    let opener: HTMLElement | null = null;
+    if (!dlg || !img || !bg) return;
 
-    const show = (i: number) => {
+    let index = 0;
+    let closing = false;
+    let swapping: Animation | null = null;
+
+    const thumb = (i: number) => shots[i].querySelector('img');
+
+    // Show the thumbnail's file at once (already in cache), then the original if it differs (phones).
+    function setImage(i: number) {
       index = (i + shots.length) % shots.length;
       const s = shots[index];
-      img.src = s.dataset.full ?? '';
+      const t = thumb(index);
+      const full = s.dataset.full ?? '';
+      img.src = t?.currentSrc || full;
       img.alt = s.dataset.alt ?? '';
       if (count) count.textContent = `${index + 1} / ${shots.length}`;
-      const next = shots[(index + 1) % shots.length];
-      if (next?.dataset.full) new Image().src = next.dataset.full;
-    };
+      if (full && full !== img.src) {
+        const pre = new Image();
+        pre.src = full;
+        pre.decode().then(() => { if (index === i) img.src = full; }).catch(() => {});
+      }
+      const next = shots[(index + 1) % shots.length]?.dataset.full;
+      if (next) new Image().src = next;
+    }
 
-    shots.forEach((s, i) =>
-      s.addEventListener('click', () => {
-        opener = s;
-        show(i);
-        dlg.showModal();
-      }),
-    );
+    async function open(i: number) {
+      setImage(i);
+      dlg.showModal();
+      try { await img.decode(); } catch {}
+      const t = thumb(index);
+      const from = t?.getBoundingClientRect();
+      const to = img.getBoundingClientRect();
 
-    root.querySelector('.lb-prev')?.addEventListener('click', () => show(index - 1));
-    root.querySelector('.lb-next')?.addEventListener('click', () => show(index + 1));
-    root.querySelector('.lb-close')?.addEventListener('click', () => dlg.close());
-    dlg.addEventListener('click', (e) => {
-      if (e.target === dlg) dlg.close();
-    });
+      bg.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduce.matches ? 200 : OPEN_MS, easing: EASE });
+      ui.forEach((el) => el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: reduce.matches ? 0 : 220, easing: EASE, fill: 'backwards' }));
+
+      if (reduce.matches || !t || !from || !from.width || !to.width) {
+        img.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE });
+        return;
+      }
+      t.style.visibility = 'hidden';
+      const zoom = img.animate([{ transform: placeOn(from, to) }, { transform: 'none' }], { duration: OPEN_MS, easing: EASE });
+      await zoom.finished.catch(() => {});
+      t.style.visibility = '';
+    }
+
+    async function close() {
+      if (closing || !dlg.open) return;
+      closing = true;
+      swapping?.cancel();
+      const t = thumb(index);
+      const from = img.getBoundingClientRect();
+      const to = t?.getBoundingClientRect();
+      const onScreen = to && to.width > 0 && to.bottom > 0 && to.top < window.innerHeight;
+
+      const anims = [
+        bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: CLOSE_MS, easing: EASE, fill: 'forwards' }),
+        ...ui.map((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: EASE, fill: 'forwards' })),
+      ];
+      if (!reduce.matches && t && to && onScreen && from.width) {
+        t.style.visibility = 'hidden';
+        anims.push(img.animate([{ transform: 'none' }, { transform: placeOn(to, from) }], { duration: CLOSE_MS, easing: EASE, fill: 'forwards' }));
+      } else {
+        anims.push(img.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: EASE, fill: 'forwards' }));
+      }
+      await Promise.all(anims.map((a) => a.finished.catch(() => {})));
+      dlg.close();
+      anims.forEach((a) => a.cancel());
+      if (t) t.style.visibility = '';
+      closing = false;
+    }
+
+    // Arrow buttons crossfade with a small slide; arrow keys switch instantly (keyboard actions don't animate).
+    function go(dir: number, animate: boolean) {
+      if (closing) return;
+      swapping?.cancel();
+      if (!animate || reduce.matches) {
+        setImage(index + dir);
+        return;
+      }
+      const out = img.animate(
+        [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-dir * 24}px)` }],
+        { duration: 120, easing: EASE, fill: 'forwards' },
+      );
+      swapping = out;
+      out.finished
+        .then(async () => {
+          setImage(index + dir);
+          try { await img.decode(); } catch {}
+          out.cancel();
+          swapping = img.animate(
+            [{ opacity: 0, transform: `translateX(${dir * 24}px)` }, { opacity: 1, transform: 'none' }],
+            { duration: 200, easing: EASE },
+          );
+        })
+        .catch(() => {});
+    }
+
+    shots.forEach((s, i) => s.addEventListener('click', () => open(i)));
+    root.querySelector('.lb-prev')?.addEventListener('click', () => go(-1, true));
+    root.querySelector('.lb-next')?.addEventListener('click', () => go(1, true));
+    root.querySelector('.lb-close')?.addEventListener('click', close);
+    bg.addEventListener('click', close);
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
+    dlg.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
     dlg.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') show(index - 1);
-      if (e.key === 'ArrowRight') show(index + 1);
+      if (e.key === 'ArrowLeft') go(-1, false);
+      if (e.key === 'ArrowRight') go(1, false);
     });
-    dlg.addEventListener('close', () => opener?.focus());
+    dlg.addEventListener('close', () => shots[index]?.focus());
 
     if (shots.length < 2) {
       root.querySelectorAll<HTMLElement>('.lb-prev, .lb-next').forEach((b) => (b.hidden = true));
@@ -93,6 +193,11 @@ const shots = items.map((g, i) => ({ ...g, full: g.image.src, alt: `${name}, ren
     grid-column: 1 / -1;
   }
 
+  /* "stack": one render per row (set per project with "galleryLayout": "stack" in projects.json). */
+  .grid.stack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .shot {
     display: block;
     width: 100%;
@@ -107,11 +212,13 @@ const shots = items.map((g, i) => ({ ...g, full: g.image.src, alt: `${name}, ren
   .shot :global(img) {
     width: 100%;
     height: auto;
-    transition: transform 700ms var(--ease), opacity 200ms ease;
+    transition: transform 700ms var(--ease);
   }
 
-  .shot:hover :global(img) {
-    transform: scale(1.015);
+  @media (hover: hover) and (pointer: fine) {
+    .shot:hover :global(img) {
+      transform: scale(1.015);
+    }
   }
 
   .lightbox {
@@ -122,31 +229,35 @@ const shots = items.map((g, i) => ({ ...g, full: g.image.src, alt: `${name}, ren
     margin: 0;
     padding: 0;
     border: 0;
-    background: rgba(5, 6, 7, 0.96);
+    background: transparent;
     color: var(--fg);
+    overflow: hidden;
   }
 
   .lightbox[open] {
     display: grid;
     place-items: center;
-    animation: fade 220ms ease both;
   }
 
   .lightbox::backdrop {
     background: transparent;
   }
 
-  @keyframes fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  .lb-bg {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 6, 7, 0.96);
   }
 
   .lb-img {
+    position: relative;
     max-width: calc(100vw - 2 * max(16px, env(safe-area-inset-left, 0px)) - 120px);
     max-height: calc(100dvh - 120px);
     width: auto;
     height: auto;
     object-fit: contain;
+    transform-origin: center;
+    will-change: transform;
   }
 
   .lb-count {
@@ -174,8 +285,10 @@ const shots = items.map((g, i) => ({ ...g, full: g.image.src, alt: `${name}, ren
     transition: background-color 160ms ease;
   }
 
-  .lb-btn:hover {
-    background: rgba(236, 231, 223, 0.14);
+  @media (hover: hover) and (pointer: fine) {
+    .lb-btn:hover {
+      background: rgba(236, 231, 223, 0.14);
+    }
   }
 
   .lb-prev { left: max(16px, env(safe-area-inset-left, 0px)); top: 50%; transform: translateY(-50%); }

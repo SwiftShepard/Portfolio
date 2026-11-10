@@ -18,6 +18,21 @@ const specs = Object.entries(p.specs ?? {});
 
 // Title over the key art: only for 16:9 key art with an empty zone named in projects.json ("keyTitle").
 const keyTitle = p.keyCinematic && p.keyTitle ? p.keyTitle : null;
+// Project text in paragraphs, words unchanged: the first sentence opens as an intro, the rest goes
+// two sentences per paragraph (a lone second sentence first when the count is odd).
+// A blank line ("\n\n") in the JSON description overrides this and sets the breaks by hand.
+function toParagraphs(text) {
+  if (text.includes('\n\n')) return text.split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
+  const s = text.split(/(?<=[.!?])\s+(?=[A-Z])/);
+  if (s.length < 3) return [text];
+  const rest = s.slice(1);
+  const out = [s[0]];
+  if (rest.length % 2 === 1) out.push(rest.shift());
+  for (let i = 0; i < rest.length; i += 2) out.push(rest.slice(i, i + 2).join(' '));
+  return out;
+}
+const paragraphs = toParagraphs(p.description);
+
 const words = p.name.split(' ');
 const titleLines = words.length > 1 ? [words.slice(0, -1).join(' '), words[words.length - 1]] : [p.name];
 ---
@@ -28,7 +43,7 @@ const titleLines = words.length > 1 ? [words.slice(0, -1).join(' '), words[words
       data-pos={keyTitle?.position ?? undefined}
       data-tone={keyTitle?.tone ?? undefined}
     >
-      <Render class="key-img" src={p.key} alt={`${p.name}, key render`} loading="eager" fetchpriority="high" />
+      <Render class="key-img" src={p.key} alt={`${p.name}, key render`} loading="eager" fetchpriority="high" vtName={`key-${p.slug}`} />
       {keyTitle && (
         <div class="key-title">
           <h1 class="display">
@@ -44,34 +59,43 @@ const titleLines = words.length > 1 ? [words.slice(0, -1).join(' '), words[words
       )}
     </figure>
 
-    <header class="container head">
-      <div class="title">
-        <a class="back mono" href="/#work"><span aria-hidden="true">←</span> All work</a>
-        {!keyTitle && <h1 class="display">{p.name}</h1>}
-        <p class="lead">{p.pitch}</p>
+    <!-- Text (info) and images (media) are grouped so the side-rail layout can split them into two columns.
+         In the stacked layouts the groups dissolve and CSS order restores: head, inspect, story, gallery. -->
+    <div class="case container">
+      <div class="case-info">
+        <header class="head">
+          <div class="title">
+            <a class="back mono" href="/#work"><span aria-hidden="true">←</span> All work</a>
+            {!keyTitle && <h1 class="display">{p.name}</h1>}
+            <p class="lead">{p.pitch}</p>
+          </div>
+          <dl class="spec">
+            <dt>Year</dt><dd>{p.year}</dd>
+            <dt>Type</dt><dd>{p.typeLabel}</dd>
+            <dt>Software</dt><dd>{p.breakdown.software.join(', ')}</dd>
+            <dt>Techniques</dt><dd>{p.breakdown.techniques.join(', ')}</dd>
+            {specs.map(([k, v]) => (<><dt>{k}</dt><dd>{v}</dd></>))}
+          </dl>
+        </header>
+
+        <section class="block story" aria-labelledby="story-title">
+          <h2 id="story-title" class="h-section">The project</h2>
+          <div class="desc">
+            {paragraphs.map((t, i) => <p class:list={[{ intro: i === 0 && paragraphs.length > 1 }]}>{t}</p>)}
+          </div>
+        </section>
       </div>
-      <dl class="spec">
-        <dt>Year</dt><dd>{p.year}</dd>
-        <dt>Type</dt><dd>{p.typeLabel}</dd>
-        <dt>Software</dt><dd>{p.breakdown.software.join(', ')}</dd>
-        <dt>Techniques</dt><dd>{p.breakdown.techniques.join(', ')}</dd>
-        {specs.map(([k, v]) => (<><dt>{k}</dt><dd>{v}</dd></>))}
-      </dl>
-    </header>
 
-    {showInspect && (
-      <div class="container block">
-        <Inspect name={p.name} lit={p.inspectLit} wire={p.inspectWire} poster={p.coverImage} modelUrl={p.modelUrl} modelMB={p.modelMB} />
+      <div class="case-media">
+        {showInspect && (
+          <div class="block inspect-wrap">
+            <Inspect name={p.name} lit={p.inspectLit} wire={p.inspectWire} poster={p.coverImage} modelUrl={p.modelUrl} modelMB={p.modelMB} />
+          </div>
+        )}
+        <div class="block gallery-wrap">
+          <Gallery name={p.name} items={p.gallery} layout={p.galleryLayout === 'stack' ? 'stack' : 'mosaic'} />
+        </div>
       </div>
-    )}
-
-    <section class="container block story" aria-labelledby="story-title">
-      <h2 id="story-title" class="h-section">The project</h2>
-      <p class="desc">{p.description}</p>
-    </section>
-
-    <div class="container block">
-      <Gallery name={p.name} items={p.gallery} />
     </div>
 
     {next && next.slug !== p.slug && (
@@ -262,10 +286,19 @@ const titleLines = words.length > 1 ? [words.slice(0, -1).join(' '), words[words
   }
 
   .desc {
-    max-width: 68ch;
+    display: grid;
+    gap: 1.15em;
+    max-width: 62ch;
     color: var(--fg-2);
-    font-size: 1.06rem;
-    line-height: 1.75;
+    font-size: 1.04rem;
+    line-height: 1.8;
+  }
+
+  .desc .intro {
+    color: var(--fg);
+    font-size: var(--step-1);
+    line-height: 1.5;
+    padding-bottom: 0.2em;
   }
 
   .next {
@@ -301,6 +334,75 @@ const titleLines = words.length > 1 ? [words.slice(0, -1).join(' '), words[words
     .head,
     .story {
       grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---- Case layout. Below 1100 px: one stacked column; the two groups dissolve into it. ---- */
+  .case {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .case-info,
+  .case-media {
+    display: contents;
+  }
+
+  .head { order: 1; }
+  .inspect-wrap { order: 2; }
+  .story { order: 3; }
+  .gallery-wrap { order: 4; }
+
+  /* ---- Desktop (1100 px and up): sticky info rail on the left, renders on the right. ---- */
+  @media (min-width: 1100px) {
+    .case {
+      display: grid;
+      grid-template-columns: minmax(340px, 0.34fr) minmax(0, 1fr);
+      gap: clamp(36px, 4vw, 80px);
+      align-items: start;
+      padding-top: clamp(40px, 4vw, 72px);
+    }
+
+    .case-info,
+    .case-media {
+      display: block;
+    }
+
+    .case-info {
+      position: sticky;
+      top: calc(var(--nav-h) + 28px);
+      max-height: calc(100svh - var(--nav-h) - 56px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      padding-right: 8px;
+    }
+
+    .case-info .head,
+    .case-info .story {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+      padding-top: 0;
+    }
+
+    .case-info .story {
+      padding-top: 40px;
+    }
+
+    .case-info .story h2 {
+      font-size: var(--step-1);
+    }
+
+    .case-info .desc {
+      font-size: 0.98rem;
+    }
+
+    .case-info .desc .intro {
+      font-size: 1.12rem;
+    }
+
+    .case-media > .block:first-child {
+      padding-top: 0;
     }
   }
 

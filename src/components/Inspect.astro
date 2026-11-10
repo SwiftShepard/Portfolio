@@ -209,6 +209,8 @@ const hasModel = Boolean(modelUrl);
   .frame {
     position: relative;
     aspect-ratio: 16 / 9;
+    /* On very wide layouts, keep the whole frame visible under the navigation bar. */
+    max-height: calc(100svh - var(--nav-h) - 120px);
     background: #050607;
     border: 1px solid var(--line);
     border-radius: 3px;

@@ -60,7 +60,7 @@ const legacyIds = Object.fromEntries(projects.map((p) => [p.id, p.slug]));
           <li class:list={['tile', { feature: i === 0 }]}>
             <a href={`/work/${p.slug}/`}>
               <div class="tile-media">
-                <Render src={p.coverImage} alt={`${p.name}, ${p.typeLabel.toLowerCase()} render`} />
+                <Render src={p.coverImage} alt={`${p.name}, ${p.typeLabel.toLowerCase()} render`} vtName={`key-${p.slug}`} />
               </div>
               <div class="tile-meta">
                 <h3 class="tile-name wide">{p.name}</h3>

@@ -104,6 +104,14 @@ button {
   border-radius: 2px;
 }
 
+/* ---- Desktop: content uses the full screen width with a thinner gutter. ---- */
+@media (min-width: 1100px) {
+  :root {
+    --max: 100vw;
+    --gutter: clamp(24px, 2.6vw, 56px);
+  }
+}
+
 /* ---- Utilities ---- */
 .wide {
   font-stretch: 125%;
@@ -300,5 +308,22 @@ button {
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Page-to-page transitions (Chrome, Edge, Safari 18.2+; other browsers just navigate).
+     The page crossfades; a project tile on the home page morphs into that project's key art. */
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 240ms;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  ::view-transition-group(*) {
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
   }
 }
