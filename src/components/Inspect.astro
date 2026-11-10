@@ -2,6 +2,7 @@
 // Inspection screen for prop pages. Today: a same-angle lit / wireframe comparison (when both renders exist)
 // and the Marmoset viewer on demand. When a .glb export is available, the Three.js exploded view plugs in here.
 import { Image } from 'astro:assets';
+import Render from './Render.astro';
 
 const { name, lit, wire, poster, modelUrl, modelMB } = Astro.props;
 const hasCompare = Boolean(lit && wire);
@@ -28,9 +29,9 @@ const hasModel = Boolean(modelUrl);
 
     {hasCompare ? (
       <div class="compare" style="--pos: 50%">
-        <Image class="layer lit" src={lit} alt={`${name}, final lit render`} widths={[960, 1600, 2400]} sizes="(min-width: 1560px) 1480px, 100vw" quality={82} />
+        <Render class="layer lit" src={lit} alt={`${name}, final lit render`} />
         <div class="wire-clip" aria-hidden="true">
-          <Image class="layer" src={wire} alt="" widths={[960, 1600, 2400]} sizes="(min-width: 1560px) 1480px, 100vw" quality={82} />
+          <Render class="layer" src={wire} alt="" />
         </div>
         <span class="tag tag-l mono" aria-hidden="true">Lit</span>
         <span class="tag tag-r mono" aria-hidden="true">Wireframe</span>

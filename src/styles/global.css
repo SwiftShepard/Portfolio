@@ -53,12 +53,16 @@ body {
 }
 
 img,
-picture,
 video,
 canvas {
   display: block;
   max-width: 100%;
   height: auto;
+}
+
+/* <picture> only switches sources; layout and styling apply to the <img> inside. */
+picture {
+  display: contents;
 }
 
 h1,

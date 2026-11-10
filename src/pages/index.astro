@@ -1,6 +1,6 @@
 ---
-import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import Render from '../components/Render.astro';
 import { projects, site, heroProject, heroImage, heroAlt } from '../lib/projects.js';
 
 // Hero: set by the "hero" field in projects.json (today the MCX). The real-time diorama will replace it later.
@@ -30,16 +30,7 @@ const legacyIds = Object.fromEntries(projects.map((p) => [p.id, p.slug]));
   </script>
 
   <section class="hero" aria-labelledby="hero-title">
-    <Image
-      class="hero-bg"
-      src={heroImage}
-      alt={heroAlt}
-      widths={[828, 1280, 1920, 2560]}
-      sizes="100vw"
-      loading="eager"
-      fetchpriority="high"
-      quality={80}
-    />
+    <Render class="hero-bg" src={heroImage} alt={heroAlt} loading="eager" fetchpriority="high" />
     <div class="scrim" aria-hidden="true"></div>
     <div class="hero-inner container">
       <div class="hero-copy">
@@ -69,13 +60,7 @@ const legacyIds = Object.fromEntries(projects.map((p) => [p.id, p.slug]));
           <li class:list={['tile', { feature: i === 0 }]}>
             <a href={`/work/${p.slug}/`}>
               <div class="tile-media">
-                <Image
-                  src={p.coverImage}
-                  alt={`${p.name}, ${p.typeLabel.toLowerCase()} render`}
-                  widths={i === 0 ? [828, 1280, 1920, 2560] : [640, 960, 1280]}
-                  sizes={i === 0 ? '(min-width: 1560px) 1480px, calc(100vw - 2 * var(--gutter))' : '(min-width: 900px) 46vw, 100vw'}
-                  quality={80}
-                />
+                <Render src={p.coverImage} alt={`${p.name}, ${p.typeLabel.toLowerCase()} render`} />
               </div>
               <div class="tile-meta">
                 <h3 class="tile-name wide">{p.name}</h3>

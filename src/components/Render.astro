@@ -1,0 +1,21 @@
+---
+// A 3D render served at full resolution, untouched: the original file, with no resize and no recompression,
+// so texture grain survives. Phones (where 4K cannot be seen) get a 1920 px copy at quality 95.
+import { getImage } from 'astro:assets';
+
+const { src, alt = '', class: className, loading = 'lazy', fetchpriority, phone = true } = Astro.props;
+const small = phone && src.width > 1920 ? await getImage({ src, width: 1920, format: 'jpg', quality: 95 }) : null;
+---
+<picture>
+  {small && <source media="(max-width: 820px)" srcset={small.src} />}
+  <img
+    class={className}
+    src={src.src}
+    width={src.width}
+    height={src.height}
+    alt={alt}
+    loading={loading}
+    fetchpriority={fetchpriority}
+    decoding="async"
+  />
+</picture>

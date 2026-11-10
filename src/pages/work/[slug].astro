@@ -1,6 +1,6 @@
 ---
-import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
+import Render from '../../components/Render.astro';
 import Inspect from '../../components/Inspect.astro';
 import Gallery from '../../components/Gallery.astro';
 import { projects } from '../../lib/projects.js';
@@ -15,25 +15,39 @@ export function getStaticPaths() {
 const { project: p, next } = Astro.props;
 const showInspect = Boolean((p.inspectLit && p.inspectWire) || p.modelUrl);
 const specs = Object.entries(p.specs ?? {});
+
+// Title over the key art: only for 16:9 key art with an empty zone named in projects.json ("keyTitle").
+const keyTitle = p.keyCinematic && p.keyTitle ? p.keyTitle : null;
+const words = p.name.split(' ');
+const titleLines = words.length > 1 ? [words.slice(0, -1).join(' '), words[words.length - 1]] : [p.name];
 ---
-<Base title={p.name} description={`${p.name}: ${p.pitch}`} ogImage={p.key}>
+<Base title={p.name} description={`${p.name}: ${p.pitch}`} ogImage={p.shareImage}>
   <article>
-    <figure class="key">
-      <Image
-        src={p.key}
-        alt={`${p.name}, key render`}
-        widths={[828, 1280, 1920, 2560]}
-        sizes="100vw"
-        loading="eager"
-        fetchpriority="high"
-        quality={82}
-      />
+    <figure
+      class:list={['key', { cinematic: p.keyCinematic, titled: keyTitle }]}
+      data-pos={keyTitle?.position ?? undefined}
+      data-tone={keyTitle?.tone ?? undefined}
+    >
+      <Render class="key-img" src={p.key} alt={`${p.name}, key render`} loading="eager" fetchpriority="high" />
+      {keyTitle && (
+        <div class="key-title">
+          <h1 class="display">
+            {titleLines.map((line, i) => (
+              <>
+                <span class:list={['line', { pre: titleLines.length > 1 && i === 0 }]} style={`--i: ${i}`}><span>{line}</span></span>{' '}
+              </>
+            ))}
+          </h1>
+          <span class="rule" aria-hidden="true"></span>
+          <span class="key-meta mono">{p.year} · {p.typeLabel}</span>
+        </div>
+      )}
     </figure>
 
     <header class="container head">
       <div class="title">
         <a class="back mono" href="/#work"><span aria-hidden="true">←</span> All work</a>
-        <h1 class="display">{p.name}</h1>
+        {!keyTitle && <h1 class="display">{p.name}</h1>}
         <p class="lead">{p.pitch}</p>
       </div>
       <dl class="spec">
@@ -72,21 +86,135 @@ const specs = Object.entries(p.specs ?? {});
 </Base>
 
 <style>
+  /* ---- Key art ---- */
   .key {
+    position: relative;
     margin: 0;
     background: var(--bg-2);
     display: grid;
     place-items: center;
     border-bottom: 1px solid var(--line);
+    overflow: hidden;
   }
 
-  .key :global(img) {
+  .key :global(.key-img) {
     width: auto;
     max-width: 100%;
     max-height: min(86svh, 1200px);
     object-fit: contain;
   }
 
+  .key.cinematic {
+    display: block;
+    place-items: normal;
+  }
+
+  .key.cinematic :global(.key-img) {
+    width: 100%;
+    max-height: none;
+    height: min(56.25vw, 88svh);
+    object-fit: cover;
+  }
+
+  /* Title card over the empty part of the render */
+  .key-title {
+    position: absolute;
+    display: grid;
+    gap: clamp(10px, 1vw, 18px);
+    max-width: 44vw;
+    color: var(--fg);
+  }
+
+  .key[data-pos='bottom-right'] .key-title { right: 4.5vw; bottom: 5.5vw; justify-items: end; text-align: right; }
+  .key[data-pos='top-right'] .key-title { right: 4.5vw; top: 5vw; justify-items: end; text-align: right; }
+  .key[data-pos='bottom-left'] .key-title { left: 4.5vw; bottom: 5.5vw; justify-items: start; }
+  .key[data-pos='top-left'] .key-title { left: 4.5vw; top: 5vw; justify-items: start; }
+
+  .key[data-tone='dark'] .key-title {
+    color: #141210;
+  }
+
+  .key[data-tone='light'] .key-title {
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Brand line small, model name large, like a product title card. */
+  .key-title h1 {
+    font-size: clamp(3rem, 0.5rem + 8.5vw, 12rem);
+    line-height: 0.86;
+  }
+
+  .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.05em;
+  }
+
+  .line.pre {
+    font-size: 0.3em;
+    letter-spacing: 0.14em;
+    line-height: 1;
+    margin-bottom: 0.2em;
+  }
+
+  .line > span {
+    display: inline-block;
+  }
+
+  .rule {
+    width: clamp(48px, 7vw, 120px);
+    height: 3px;
+    background: currentColor;
+    transform-origin: right center;
+  }
+
+  .key[data-pos$='left'] .rule {
+    transform-origin: left center;
+  }
+
+  .key-meta {
+    font-size: clamp(0.72rem, 0.6rem + 0.3vw, 0.9rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.78;
+  }
+
+  /* Reveal: lines rise out of a mask, then the rule draws and the meta fades in.
+     Gated on html.js so the title is fully visible without JavaScript. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .key.cinematic :global(.key-img) {
+      animation: key-settle 1800ms var(--ease) both;
+    }
+    :global(html.js) .key-title .line > span {
+      animation: line-up 1100ms var(--ease) both;
+      animation-delay: calc(450ms + var(--i) * 140ms);
+    }
+    :global(html.js) .key-title .rule {
+      animation: rule-in 900ms var(--ease) 900ms both;
+    }
+    :global(html.js) .key-title .key-meta {
+      animation: meta-in 700ms ease 1100ms both;
+    }
+  }
+
+  @keyframes key-settle {
+    from { transform: scale(1.04); }
+    to { transform: none; }
+  }
+  @keyframes line-up {
+    from { transform: translateY(105%); }
+    to { transform: none; }
+  }
+  @keyframes rule-in {
+    from { transform: scaleX(0); }
+    to { transform: none; }
+  }
+  @keyframes meta-in {
+    from { opacity: 0; }
+    to { opacity: 0.78; }
+  }
+
+  /* ---- Header below the key art ---- */
   .head {
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
@@ -173,6 +301,25 @@ const specs = Object.entries(p.specs ?? {});
     .head,
     .story {
       grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* On narrow screens the render is too small to hold the title: it moves under the image. */
+  @media (max-width: 900px) {
+    .key.titled .key-title {
+      position: static;
+      max-width: none;
+      justify-items: start;
+      text-align: left;
+      color: var(--fg);
+      text-shadow: none;
+      padding: 28px max(var(--gutter), env(safe-area-inset-right, 0px)) 0 max(var(--gutter), env(safe-area-inset-left, 0px));
+    }
+    .key.titled .rule {
+      transform-origin: left center;
+    }
+    .key.titled {
+      border-bottom: 0;
     }
   }
 </style>

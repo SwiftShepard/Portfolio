@@ -36,10 +36,16 @@ const all = data.projects.map((p) => {
   const keySize = bytes('src', p.thumbnail);
   const modelBytes = p.model3d ? bytes('public', p.model3d) : null;
 
+  const key = img(p.thumbnail) ?? gallery[0]?.image ?? null;
+  const keyRatio = key ? key.width / key.height : 1;
+
   return {
     ...p,
     typeLabel: typeLabel(p.type),
-    key: img(p.thumbnail) ?? gallery[0]?.image ?? null,
+    key,
+    // 16:9-ish key art fills the width ("cinematic"); square or portrait key art is shown whole.
+    keyCinematic: keyRatio >= 1.6 && keyRatio <= 2.1,
+    shareImage: img(p.share) ?? key,
     coverImage: img(p.cover) ?? img(p.thumbnail) ?? gallery[0]?.image ?? null,
     // The thumbnail is shown as key art at the top of the page, so skip its exact duplicate in the gallery.
     gallery: gallery.filter((g) => bytes('src', g.src) !== keySize),

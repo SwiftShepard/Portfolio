@@ -7,4 +7,14 @@ export default defineConfig({
   build: {
     inlineStylesheets: 'auto',
   },
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/sharp',
+      config: {
+        // Renders are judged on texture grain: keep full colour resolution (4:4:4) and use mozjpeg.
+        jpeg: { mozjpeg: true, chromaSubsampling: '4:4:4' },
+        webp: { smartSubsample: true },
+      },
+    },
+  },
 });

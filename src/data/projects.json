@@ -31,18 +31,26 @@
           "Real-Time Rendering"
         ]
       },
-      "thumbnail": "assets/projects/P-004/thumb.jpg",
+      "thumbnail": "assets/projects/P-004/key.jpg",
+      "keyTitle": {
+        "position": "bottom-right",
+        "tone": "dark"
+      },
+      "share": "assets/projects/P-004/share.jpg",
       "cover": "assets/projects/P-004/img2.jpg",
       "hero": "assets/projects/P-004/img4.jpg",
       "heroAlt": "Close-up of the laser aiming module on the rail of the Sig Sauer MCX",
       "images": [
-        "assets/projects/P-004/img1.jpg",
         "assets/projects/P-004/img2.jpg",
+        "assets/projects/P-004/img8.jpg",
+        "assets/projects/P-004/img9.jpg",
+        "assets/projects/P-004/img10.jpg",
         "assets/projects/P-004/img3.jpg",
+        "assets/projects/P-004/img11.jpg",
         "assets/projects/P-004/img4.jpg",
         "assets/projects/P-004/img5.jpg",
-        "assets/projects/P-004/img6.jpg",
-        "assets/projects/P-004/img7.jpg"
+        "assets/projects/P-004/img1.jpg",
+        "assets/projects/P-004/img6.jpg"
       ],
       "inspect": {
         "lit": "assets/projects/P-004/img2.jpg",

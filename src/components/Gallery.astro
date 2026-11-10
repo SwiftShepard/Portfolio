@@ -1,32 +1,26 @@
 ---
 // Project gallery with a native <dialog> lightbox (arrows, Escape, click outside to close).
-import { Image, getImage } from 'astro:assets';
+// Renders are shown at full resolution; the lightbox opens the untouched original file.
+import Render from './Render.astro';
 
 const { name, items = [] } = Astro.props;
-const shots = await Promise.all(
-  items.map(async (g, i) => {
-    const full = await getImage({ src: g.image, width: Math.min(2560, g.image.width), format: 'webp', quality: 86 });
-    return { ...g, full: full.src, alt: `${name}, render ${i + 1} of ${items.length}` };
-  }),
-);
+const shots = items.map((g, i) => ({ ...g, full: g.image.src, alt: `${name}, render ${i + 1} of ${items.length}` }));
 ---
 {shots.length > 0 && (
   <section class="gallery" aria-labelledby="gallery-title" data-gallery>
     <h2 id="gallery-title" class="visually-hidden">Gallery</h2>
     <ul class="grid">
-      {shots.map((s, i) => (
-        <li class:list={[{ lead: i === 0 && shots.length % 2 === 1 }]}>
-          <button type="button" class="shot" data-full={s.full} data-alt={s.alt} aria-label={`Open ${s.alt} in full screen`}>
-            <Image
-              src={s.image}
-              alt={s.alt}
-              widths={[640, 960, 1440, 1920]}
-              sizes={i === 0 && shots.length % 2 === 1 ? '(min-width: 1560px) 1480px, 100vw' : '(min-width: 900px) 48vw, 100vw'}
-              quality={80}
-            />
-          </button>
-        </li>
-      ))}
+      {shots.map((s, i) => {
+        // First image full width; then pairs; a lone last image also spans the full width.
+        const full = shots.length > 2 && (i === 0 || (i === shots.length - 1 && (shots.length - 1) % 2 === 1));
+        return (
+          <li class:list={[{ 'full-row': full }]}>
+            <button type="button" class="shot" data-full={s.full} data-alt={s.alt} aria-label={`Open ${s.alt} in full screen`}>
+              <Render src={s.image} alt={s.alt} />
+            </button>
+          </li>
+        );
+      })}
     </ul>
 
     <dialog class="lightbox" aria-label="Image viewer">
@@ -95,7 +89,7 @@ const shots = await Promise.all(
     gap: clamp(10px, 1.4vw, 18px);
   }
 
-  .lead {
+  .full-row {
     grid-column: 1 / -1;
   }
 
