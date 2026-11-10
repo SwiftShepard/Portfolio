@@ -1,0 +1,127 @@
+---
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../lib/projects.js';
+
+const {
+  title,
+  description = 'Valentin Lothe, game artist: environments and hard-surface props. Real-time 3D from CAD to Unreal Engine.',
+  ogImage,
+  overlayNav = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.role}, ${site.focus}`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+let og = new URL('/og.jpg', Astro.site).href;
+if (ogImage) {
+  const o = await getImage({ src: ogImage, width: 1200, format: 'jpg', quality: 82 });
+  og = new URL(o.src, Astro.site).href;
+}
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  jobTitle: site.role,
+  url: 'https://vlothe.com/',
+  sameAs: [site.artstation, site.linkedin],
+  knowsAbout: ['3D modeling', 'Hard-surface modeling', 'Environment art', 'PBR texturing', 'Unreal Engine'],
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0b0c0e" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={og} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={og} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(person)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Nav overlay={overlayNav} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Easter eggs, kept from the first version of the site.
+      console.log(
+        '%c' +
+          [
+            '+------------------------------------------+',
+            '|  YOU FOUND THIS                          |',
+            '|  > UNAUTHORIZED ACCESS DETECTED          |',
+            '|  > YOUR SESSION HAS BEEN LOGGED          |',
+            '|  > HAVE A NICE DAY, VISITOR              |',
+            '+------------------------------------------+',
+          ].join('\n'),
+        'color:#c8915a;background:#0b0c0e;font-family:monospace;font-size:12px;padding:4px;',
+      );
+
+      const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+      let step = 0;
+      document.addEventListener('keydown', (e) => {
+        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        step = key === code[step] ? step + 1 : key === code[0] ? 1 : 0;
+        if (step < code.length) return;
+        step = 0;
+        const toast = document.createElement('div');
+        toast.className = 'konami';
+        toast.setAttribute('role', 'status');
+        toast.innerHTML = '<strong>Hidden protocol activated</strong><span>In space, no one can hear you code.</span>';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4200);
+      });
+    </script>
+
+    <style is:global>
+      .konami {
+        position: fixed;
+        left: 50%;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 32px);
+        transform: translateX(-50%);
+        z-index: 90;
+        display: grid;
+        gap: 4px;
+        padding: 16px 22px;
+        background: var(--surface);
+        border: 1px solid var(--accent);
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        color: var(--fg-2);
+        text-align: center;
+        animation: rise 400ms var(--ease) both;
+        max-width: calc(100vw - 32px);
+      }
+      .konami strong {
+        color: var(--accent);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+    </style>
+  </body>
+</html>

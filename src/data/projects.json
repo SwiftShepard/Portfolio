@@ -2,10 +2,12 @@
   "projects": [
     {
       "id": "P-004",
+      "slug": "sig-sauer-mcx",
       "name": "Sig Sauer MCX",
       "type": "3D / WEAPON",
       "year": 2026,
       "status": "ONLINE",
+      "pitch": "A CAD-to-game weapon asset, modeled in Fusion 360 and presented in Unreal Engine.",
       "tags": [
         "Fusion 360",
         "unreal-engine",
@@ -30,6 +32,9 @@
         ]
       },
       "thumbnail": "assets/projects/P-004/thumb.jpg",
+      "cover": "assets/projects/P-004/img2.jpg",
+      "hero": "assets/projects/P-004/img4.jpg",
+      "heroAlt": "Close-up of the laser aiming module on the rail of the Sig Sauer MCX",
       "images": [
         "assets/projects/P-004/img1.jpg",
         "assets/projects/P-004/img2.jpg",
@@ -39,14 +44,20 @@
         "assets/projects/P-004/img6.jpg",
         "assets/projects/P-004/img7.jpg"
       ],
+      "inspect": {
+        "lit": "assets/projects/P-004/img2.jpg",
+        "wireframe": "assets/projects/P-004/img7.jpg"
+      },
       "model3d": "assets/projects/P-004/model.mview"
     },
     {
       "id": "P-003",
+      "slug": "eotech-exps3",
       "name": "EOTech EXPS3",
       "type": "3D / ACCESSORY",
       "year": 2026,
       "status": "ONLINE",
+      "pitch": "A game-ready recreation of the EOTech EXPS3 holographic sight.",
       "tags": [
         "3ds Max",
         "Substance Painter",
@@ -81,10 +92,12 @@
     },
     {
       "id": "P-002",
+      "slug": "pmag-nato-cartridge",
       "name": "PMAG x NATO Cartridge",
       "type": "3D / ACCESSORY",
       "year": 2026,
       "status": "ONLINE",
+      "pitch": "A material study of polymer, brass, copper and steel under controlled studio light.",
       "tags": [
         "Fusion 360",
         "Substance Painter",
@@ -109,6 +122,7 @@
         ]
       },
       "thumbnail": "assets/projects/P-002/thumb.jpg",
+      "cover": "assets/projects/P-002/img4.jpg",
       "images": [
         "assets/projects/P-002/img1.jpg",
         "assets/projects/P-002/img2.jpg",
@@ -120,10 +134,12 @@
     },
     {
       "id": "P-001",
+      "slug": "ppsh-41",
       "name": "PPSH-41",
       "type": "3D / WEAPON",
       "year": 2024,
       "status": "ONLINE",
+      "pitch": "A game-ready recreation of the WW2 Soviet submachine gun, built on a 50K triangle budget.",
       "tags": [
         "3ds Max",
         "Marmoset Toolbag",
@@ -145,7 +161,12 @@
           "Volumetric Lighting"
         ]
       },
+      "specs": {
+        "Triangles": "50K total",
+        "Textures": "One 4K PBR set for the weapon, one 2K set per magazine"
+      },
       "thumbnail": "assets/projects/P-001/thumb.jpg",
+      "cover": "assets/projects/P-001/img5.jpg",
       "images": [
         "assets/projects/P-001/img1.jpg",
         "assets/projects/P-001/img2.jpg",

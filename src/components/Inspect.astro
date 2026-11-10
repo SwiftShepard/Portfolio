@@ -1,0 +1,405 @@
+---
+// Inspection screen for prop pages. Today: a same-angle lit / wireframe comparison (when both renders exist)
+// and the Marmoset viewer on demand. When a .glb export is available, the Three.js exploded view plugs in here.
+import { Image } from 'astro:assets';
+
+const { name, lit, wire, poster, modelUrl, modelMB } = Astro.props;
+const hasCompare = Boolean(lit && wire);
+const hasModel = Boolean(modelUrl);
+---
+<section class="inspect" aria-labelledby="inspect-title" data-inspect data-model={modelUrl ?? undefined}>
+  <div class="inspect-head">
+    <h2 id="inspect-title" class="h-section">Inspect</h2>
+    {hasCompare && (
+      <div class="modes" role="group" aria-label="Render mode">
+        <button type="button" data-mode="lit" aria-pressed="false">Lit</button>
+        <button type="button" data-mode="compare" aria-pressed="true">Compare</button>
+        <button type="button" data-mode="wire" aria-pressed="false">Wireframe</button>
+        {hasModel && <button type="button" data-mode="3d" aria-pressed="false">3D</button>}
+      </div>
+    )}
+  </div>
+
+  <div class="frame">
+    <span class="corner tl" aria-hidden="true"></span>
+    <span class="corner tr" aria-hidden="true"></span>
+    <span class="corner bl" aria-hidden="true"></span>
+    <span class="corner br" aria-hidden="true"></span>
+
+    {hasCompare ? (
+      <div class="compare" style="--pos: 50%">
+        <Image class="layer lit" src={lit} alt={`${name}, final lit render`} widths={[960, 1600, 2400]} sizes="(min-width: 1560px) 1480px, 100vw" quality={82} />
+        <div class="wire-clip" aria-hidden="true">
+          <Image class="layer" src={wire} alt="" widths={[960, 1600, 2400]} sizes="(min-width: 1560px) 1480px, 100vw" quality={82} />
+        </div>
+        <span class="tag tag-l mono" aria-hidden="true">Lit</span>
+        <span class="tag tag-r mono" aria-hidden="true">Wireframe</span>
+        <span class="handle" aria-hidden="true"></span>
+        <input class="range" type="range" min="0" max="100" value="50" step="0.5" aria-label={`Reveal the wireframe of the ${name}`} />
+      </div>
+    ) : (
+      <div class="poster">
+        {poster && <Image src={poster} alt="" widths={[960, 1600]} sizes="100vw" quality={70} />}
+      </div>
+    )}
+
+    {hasModel && (
+      <div class="viewer" hidden>
+        <p class="viewer-status mono" role="status"></p>
+      </div>
+    )}
+
+    {hasModel && !hasCompare && (
+      <button type="button" class="btn load" data-mode="3d">
+        Open the 3D model <span class="mono size">{modelMB} MB</span>
+      </button>
+    )}
+  </div>
+
+  <div class="prompts mono" aria-hidden="true">
+    {hasCompare && <span class="p-compare"><kbd>Drag</kbd> Compare</span>}
+    {hasModel && <span class="p-3d" hidden><kbd>Drag</kbd> Rotate <kbd>Scroll</kbd> Zoom</span>}
+    {hasModel && hasCompare && <span class="p-size">3D model: {modelMB} MB, loads on demand</span>}
+  </div>
+</section>
+
+<script>
+  declare const marmoset: any;
+
+  let marmosetScript: Promise<void> | null = null;
+  function loadMarmoset() {
+    if (marmosetScript) return marmosetScript;
+    marmosetScript = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://viewer.marmoset.co/main/marmoset.js';
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('Marmoset viewer failed to load'));
+      document.head.appendChild(s);
+    });
+    return marmosetScript;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-inspect]').forEach((root) => {
+    const compare = root.querySelector<HTMLElement>('.compare');
+    const range = root.querySelector<HTMLInputElement>('.range');
+    const poster = root.querySelector<HTMLElement>('.poster');
+    const viewer = root.querySelector<HTMLElement>('.viewer');
+    const status = root.querySelector<HTMLElement>('.viewer-status');
+    const loadBtn = root.querySelector<HTMLButtonElement>('.load');
+    const modeBtns = root.querySelectorAll<HTMLButtonElement>('.modes [data-mode]');
+    const pCompare = root.querySelector<HTMLElement>('.p-compare');
+    const p3d = root.querySelector<HTMLElement>('.p-3d');
+    const modelUrl = root.dataset.model;
+    let instance: any = null;
+
+    const setPos = (v: number, animate = false) => {
+      if (!compare || !range) return;
+      compare.classList.toggle('animate', animate);
+      compare.style.setProperty('--pos', v + '%');
+      range.value = String(v);
+    };
+
+    range?.addEventListener('input', () => setPos(Number(range.value)));
+
+    async function open3D() {
+      if (!viewer || !modelUrl) return;
+      viewer.hidden = false;
+      if (compare) compare.hidden = true;
+      if (poster) poster.hidden = true;
+      if (loadBtn) loadBtn.hidden = true;
+      if (pCompare) pCompare.hidden = true;
+      if (p3d) p3d.hidden = false;
+      if (instance) return;
+      if (status) status.textContent = 'Loading the 3D viewer…';
+      try {
+        await loadMarmoset();
+        const w = viewer.clientWidth;
+        const h = viewer.clientHeight;
+        instance = new marmoset.WebViewer(w, h, modelUrl);
+        viewer.appendChild(instance.domRoot);
+        if (typeof instance.loadScene === 'function') instance.loadScene();
+        if (status) status.textContent = '';
+        new ResizeObserver(() => {
+          if (!instance || viewer.hidden) return;
+          try {
+            instance.resize(viewer.clientWidth, viewer.clientHeight);
+          } catch {
+            // The Marmoset scene is still loading; the next resize will apply.
+          }
+        }).observe(viewer);
+      } catch {
+        if (status) status.textContent = 'The 3D viewer could not load. Check your connection and try again.';
+        marmosetScript = null;
+      }
+    }
+
+    function show2D(pos: number) {
+      if (viewer) viewer.hidden = true;
+      if (compare) compare.hidden = false;
+      if (pCompare) pCompare.hidden = false;
+      if (p3d) p3d.hidden = true;
+      setPos(pos, true);
+    }
+
+    modeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modeBtns.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        const mode = btn.dataset.mode;
+        if (mode === 'lit') show2D(100);
+        else if (mode === 'wire') show2D(0);
+        else if (mode === 'compare') show2D(50);
+        else if (mode === '3d') open3D();
+      });
+    });
+
+    loadBtn?.addEventListener('click', open3D);
+  });
+</script>
+
+<style>
+  .inspect {
+    display: grid;
+    gap: 20px;
+  }
+
+  .inspect-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px 32px;
+  }
+
+  .modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .modes button {
+    min-height: 40px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .modes button:hover {
+    box-shadow: inset 0 0 0 1px var(--fg-2);
+    color: var(--fg);
+  }
+
+  .modes button[aria-pressed='true'] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: none;
+    font-weight: 600;
+  }
+
+  .frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #050607;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .corner {
+    position: absolute;
+    z-index: 3;
+    width: 22px;
+    height: 22px;
+    border: 0 solid var(--line-2);
+    pointer-events: none;
+  }
+  .corner.tl { left: 12px; top: 12px; border-left-width: 1px; border-top-width: 1px; }
+  .corner.tr { right: 12px; top: 12px; border-right-width: 1px; border-top-width: 1px; }
+  .corner.bl { left: 12px; bottom: 12px; border-left-width: 1px; border-bottom-width: 1px; }
+  .corner.br { right: 12px; bottom: 12px; border-right-width: 1px; border-bottom-width: 1px; }
+
+  .compare,
+  .poster,
+  .viewer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .compare[hidden],
+  .poster[hidden],
+  .viewer[hidden] {
+    display: none;
+  }
+
+  .compare :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .wire-clip {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 0 0 var(--pos));
+  }
+
+  .compare.animate .wire-clip {
+    transition: clip-path 600ms var(--ease);
+  }
+
+  .compare.animate .handle {
+    transition: left 600ms var(--ease);
+  }
+
+  .handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--pos);
+    width: 1px;
+    background: var(--accent);
+    box-shadow: 0 0 0 1px rgba(11, 12, 14, 0.4);
+    pointer-events: none;
+  }
+
+  .handle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .range {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+    touch-action: pan-y;
+    z-index: 2;
+  }
+
+  .range:focus-visible ~ .handle::after,
+  .compare:has(.range:focus-visible) .handle::after {
+    box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 3px rgba(200, 145, 90, 0.35);
+  }
+
+  .tag {
+    position: absolute;
+    top: 18px;
+    z-index: 1;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+    padding: 4px 8px;
+    background: rgba(11, 12, 14, 0.6);
+  }
+  .tag-l { left: 44px; }
+  .tag-r { right: 44px; }
+
+  .poster :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.35;
+    filter: saturate(0.6);
+  }
+
+  .viewer {
+    background: #050607;
+  }
+
+  .viewer-status {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  .viewer-status:empty {
+    display: none;
+  }
+
+  .load {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+
+  .load .size {
+    opacity: 0.7;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    font-stretch: 100%;
+  }
+
+  .prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .prompts [hidden] {
+    display: none;
+  }
+
+  kbd {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 1px 7px;
+    margin-right: 4px;
+    border: 1px solid var(--line-2);
+    border-radius: 3px;
+    color: var(--fg-2);
+  }
+
+  kbd + kbd,
+  span > kbd:not(:first-child) {
+    margin-left: 10px;
+  }
+
+  @media (max-width: 640px) {
+    .frame {
+      aspect-ratio: 4 / 3;
+    }
+    .tag-l { left: 16px; }
+    .tag-r { right: 16px; }
+    .corner {
+      width: 14px;
+      height: 14px;
+    }
+  }
+</style>

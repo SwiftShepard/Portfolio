@@ -1,0 +1,99 @@
+---
+import CopyEmail from './CopyEmail.astro';
+import { site } from '../lib/projects.js';
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="container">
+    <div class="top">
+      <div class="pitch">
+        <p class="h-section">Get in<br />touch</p>
+        <p class="avail">{site.availability}.</p>
+      </div>
+      <div class="reach">
+        <CopyEmail />
+        <ul class="links">
+          <li><a href={site.artstation} rel="noopener" target="_blank">ArtStation</a></li>
+          <li><a href={site.linkedin} rel="noopener" target="_blank">LinkedIn</a></li>
+          <li><a href={site.cv} download="Valentin-Lothe-CV.pdf">CV (PDF)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="bottom mono">
+      <span>© {year} {site.name}</span>
+      <span>{site.role} · {site.focus}</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--line);
+    background: var(--bg-2);
+    padding-top: clamp(64px, 8vw, 120px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
+  }
+
+  .top {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: clamp(32px, 6vw, 96px);
+    align-items: end;
+  }
+
+  .pitch {
+    display: grid;
+    gap: 18px;
+  }
+
+  .avail {
+    color: var(--muted);
+  }
+
+  .reach {
+    display: grid;
+    gap: 22px;
+    justify-items: start;
+  }
+
+  .links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+  }
+
+  .links a {
+    color: var(--fg-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line-2);
+    padding-bottom: 2px;
+  }
+
+  .links a:hover {
+    color: var(--fg);
+    border-color: var(--accent);
+  }
+
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin-top: clamp(56px, 7vw, 96px);
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 760px) {
+    .top {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+  }
+</style>
