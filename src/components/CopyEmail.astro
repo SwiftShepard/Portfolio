@@ -1,0 +1,87 @@
+---
+import { site } from '../lib/projects.js';
+---
+<div class="copy-email">
+  <a class="addr" href={`mailto:${site.email}`}>{site.email}</a>
+  <button type="button" class="copy" data-copy={site.email} aria-label="Copy email address">
+    <span class="label">Copy</span>
+  </button>
+  <span class="visually-hidden" role="status" aria-live="polite"></span>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.copy-email .copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const value = btn.dataset.copy ?? '';
+      const label = btn.querySelector('.label');
+      const live = btn.parentElement?.querySelector('[role="status"]');
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch {
+        const range = document.createRange();
+        const addr = btn.parentElement?.querySelector('.addr');
+        if (addr) {
+          range.selectNodeContents(addr);
+          const sel = window.getSelection();
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        }
+      }
+      if (label) label.textContent = 'Copied';
+      if (live) live.textContent = 'Email address copied';
+      btn.classList.add('done');
+      setTimeout(() => {
+        if (label) label.textContent = 'Copy';
+        btn.classList.remove('done');
+      }, 2000);
+    });
+  });
+</script>
+
+<style>
+  .copy-email {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    min-width: 0;
+  }
+
+  .addr {
+    font-size: clamp(1.05rem, 0.9rem + 0.8vw, 1.45rem);
+    font-weight: 500;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    border-bottom: 1px solid var(--line-2);
+  }
+
+  .addr:hover {
+    border-color: var(--accent);
+  }
+
+  .copy {
+    min-height: 36px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--fg-2);
+    transition: box-shadow 160ms ease, color 160ms ease;
+  }
+
+  .copy:hover {
+    box-shadow: inset 0 0 0 1px var(--fg-2);
+    color: var(--fg);
+  }
+
+  .copy.done {
+    color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+</style>

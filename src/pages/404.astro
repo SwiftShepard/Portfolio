@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Page not found" description="This page does not exist.">
+  <div class="container nf">
+    <p class="mono code">404</p>
+    <h1 class="display">Lost in the level</h1>
+    <p class="lead">This page does not exist, or it moved when the site was rebuilt.</p>
+    <div class="actions">
+      <a class="btn" href="/#work">See the work</a>
+      <a class="btn ghost" href="/">Home</a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    gap: 22px;
+    justify-items: start;
+    padding-top: clamp(80px, 14vw, 200px);
+    padding-bottom: clamp(80px, 12vw, 160px);
+  }
+  .code {
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  h1 {
+    font-size: clamp(2.6rem, 1rem + 6vw, 6.5rem);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+</style>

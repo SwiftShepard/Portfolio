@@ -1,0 +1,115 @@
+---
+import { site } from '../lib/projects.js';
+const { overlay = false } = Astro.props;
+const path = Astro.url.pathname;
+const links = [
+  { href: '/#work', label: 'Work', current: path.startsWith('/work') },
+  { href: '/about/', label: 'About', current: path.startsWith('/about') },
+  { href: '/contact/', label: 'Contact', current: path.startsWith('/contact') },
+];
+---
+<header class:list={['nav', { overlay }]}>
+  <div class="nav-inner container">
+    <a class="brand" href="/" aria-label={`${site.name}, home`}>{site.name}</a>
+    <nav aria-label="Main">
+      <ul>
+        {links.map((l) => (
+          <li><a href={l.href} aria-current={l.current ? 'page' : undefined}>{l.label}</a></li>
+        ))}
+        <li class="cv"><a href={site.cv} download="Valentin-Lothe-CV.pdf">CV</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(11, 12, 14, 0.86);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border-bottom: 1px solid var(--line);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .nav.overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, rgba(11, 12, 14, 0.7), rgba(11, 12, 14, 0));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 0;
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: var(--nav-h);
+  }
+
+  .brand {
+    font-stretch: 125%;
+    font-weight: 750;
+    font-size: 0.86rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: clamp(14px, 2.6vw, 36px);
+  }
+
+  ul a {
+    position: relative;
+    display: inline-block;
+    padding: 12px 0;
+    font-size: 0.94rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-2);
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  ul a:hover,
+  ul a[aria-current='page'] {
+    color: var(--fg);
+  }
+
+  ul a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 6px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  @media (max-width: 440px) {
+    .cv {
+      display: none;
+    }
+    .brand {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+    }
+    ul {
+      gap: 14px;
+    }
+    ul a {
+      font-size: 0.88rem;
+      letter-spacing: 0.01em;
+    }
+  }
+</style>

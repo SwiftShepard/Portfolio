@@ -1,0 +1,358 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { projects, site, heroProject, heroImage, heroAlt } from '../lib/projects.js';
+
+// Hero: set by the "hero" field in projects.json (today the MCX). The real-time diorama will replace it later.
+// The name lives in the navigation bar only; the headline sells the role.
+
+// Old hash links (vlothe.com/#projects/P-004, #about, #contact) still lead to the right page.
+const legacyIds = Object.fromEntries(projects.map((p) => [p.id, p.slug]));
+---
+<Base overlayNav ogImage={heroImage}>
+  <script is:inline define:vars={{ legacyIds }}>
+    (function () {
+      function route() {
+        var h = location.hash.slice(1);
+        if (!h) return;
+        if (h.indexOf('projects/') === 0) {
+          var slug = legacyIds[h.split('/')[1]];
+          if (slug) location.replace('/work/' + slug + '/');
+        } else if (h === 'about' || h === 'contact') {
+          location.replace('/' + h + '/');
+        } else if (h === 'projects') {
+          location.replace('#work');
+        }
+      }
+      route();
+      window.addEventListener('hashchange', route);
+    })();
+  </script>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <Image
+      class="hero-bg"
+      src={heroImage}
+      alt={heroAlt}
+      widths={[828, 1280, 1920, 2560]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      quality={80}
+    />
+    <div class="scrim" aria-hidden="true"></div>
+    <div class="hero-inner container">
+      <div class="hero-copy">
+        <h1 id="hero-title" class="display name"><span class="visually-hidden">{site.name}, </span>Game <br />Artist</h1>
+        <p class="role">{site.focus}</p>
+        <div class="actions">
+          <a class="btn" href="#work">Selected work</a>
+          <a class="btn ghost" href={site.cv} download="Valentin-Lothe-CV.pdf">Download CV</a>
+        </div>
+        <p class="avail">{site.availability}</p>
+      </div>
+      <a class="now mono" href={`/work/${heroProject.slug}/`}>
+        <span>{heroProject.name} · {heroProject.year}</span>
+        <span class="go">View project <span aria-hidden="true">→</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section id="work" class="section work" aria-labelledby="work-title">
+    <div class="container">
+      <div class="work-head">
+        <h2 id="work-title" class="h-section">Selected work</h2>
+        <p class="muted">Hard-surface assets built for real-time, from CAD to engine.</p>
+      </div>
+      <ul class="tiles">
+        {projects.map((p, i) => (
+          <li class:list={['tile', { feature: i === 0 }]}>
+            <a href={`/work/${p.slug}/`}>
+              <div class="tile-media">
+                <Image
+                  src={p.coverImage}
+                  alt={`${p.name}, ${p.typeLabel.toLowerCase()} render`}
+                  widths={i === 0 ? [828, 1280, 1920, 2560] : [640, 960, 1280]}
+                  sizes={i === 0 ? '(min-width: 1560px) 1480px, calc(100vw - 2 * var(--gutter))' : '(min-width: 900px) 46vw, 100vw'}
+                  quality={80}
+                />
+              </div>
+              <div class="tile-meta">
+                <h3 class="tile-name wide">{p.name}</h3>
+                <span class="tile-info mono">{p.year} · {p.typeLabel}</span>
+              </div>
+              <p class="tile-pitch">{p.pitch}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section about" aria-labelledby="about-title">
+    <div class="container about-grid">
+      <h2 id="about-title" class="h-section">About</h2>
+      <div class="about-copy">
+        <p class="lead">
+          3D artist building immersive worlds and futuristic designs, specialized in hard-surface modeling,
+          photorealistic rendering and sci-fi inspired environments.
+        </p>
+        <dl class="spec facts">
+          <dt>Experience</dt>
+          <dd>Dassault Systèmes, BYN.R Studio, Cobalt Fx</dd>
+          <dt>Education</dt>
+          <dd>Mastère Game Art, IIM Digital School</dd>
+          <dt>Tools</dt>
+          <dd>3ds Max, Fusion 360, ZBrush, Blender, Substance, Marmoset, Unreal Engine</dd>
+        </dl>
+        <a class="link-arrow" href="/about/">About and full CV <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---- Hero ---- */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    min-height: 100svh;
+    display: grid;
+    align-items: end;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .hero :global(.hero-bg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 72% 50%;
+    z-index: -2;
+    animation: settle 1800ms var(--ease) both;
+  }
+
+  /* The entrance moves the render only: the text is readable from the first frame. */
+  @keyframes settle {
+    from {
+      transform: scale(1.06);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  .scrim {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(90deg, rgba(11, 12, 14, 0.92) 0%, rgba(11, 12, 14, 0.7) 32%, rgba(11, 12, 14, 0.15) 68%, rgba(11, 12, 14, 0) 100%),
+      linear-gradient(0deg, rgba(11, 12, 14, 0.85) 0%, rgba(11, 12, 14, 0) 45%);
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 32px;
+    padding-top: calc(var(--nav-h) + 48px);
+    padding-bottom: clamp(36px, 7vh, 80px);
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: clamp(14px, 1.8vw, 22px);
+    min-width: 0;
+  }
+
+  .name {
+    font-size: var(--display);
+  }
+
+  .role {
+    font-size: clamp(1.15rem, 0.9rem + 1vw, 1.75rem);
+    color: #ddd6cb;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .avail {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+
+  .now {
+    display: grid;
+    gap: 6px;
+    justify-items: end;
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--fg-2);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+  }
+
+  .now .go {
+    color: var(--muted);
+    transition: color 160ms ease;
+  }
+
+  .now:hover .go {
+    color: var(--accent);
+  }
+
+  @media (max-width: 760px) {
+    .hero :global(.hero-bg) {
+      object-position: 58% 60%;
+    }
+    .scrim {
+      background:
+        linear-gradient(0deg, rgba(11, 12, 14, 0.96) 0%, rgba(11, 12, 14, 0.75) 45%, rgba(11, 12, 14, 0.1) 80%),
+        linear-gradient(180deg, rgba(11, 12, 14, 0.6) 0%, rgba(11, 12, 14, 0) 25%);
+    }
+    .hero-inner {
+      grid-template-columns: 1fr;
+    }
+    .now {
+      justify-items: start;
+      text-align: left;
+    }
+  }
+
+  /* ---- Work ---- */
+  .work-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px 32px;
+    margin-bottom: clamp(32px, 4vw, 56px);
+  }
+
+  .muted {
+    color: var(--muted);
+    max-width: 52ch;
+  }
+
+  .tiles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(36px, 4vw, 56px) clamp(16px, 2vw, 28px);
+  }
+
+  .tile.feature {
+    grid-column: 1 / -1;
+  }
+
+  .tile a {
+    display: grid;
+    gap: 14px;
+    text-decoration: none;
+  }
+
+  .tile-media {
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--surface);
+    aspect-ratio: 1 / 1;
+  }
+
+  .tile.feature .tile-media {
+    aspect-ratio: 16 / 9;
+  }
+
+  .tile-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 700ms var(--ease);
+  }
+
+  .tile a:hover .tile-media :global(img) {
+    transform: scale(1.025);
+  }
+
+  .tile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 20px;
+  }
+
+  .tile-name {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.9rem);
+    font-weight: 780;
+    text-transform: uppercase;
+    line-height: 1;
+    transition: color 160ms ease;
+  }
+
+  .tile a:hover .tile-name {
+    color: var(--accent);
+  }
+
+  .tile-info {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .tile-pitch {
+    color: var(--fg-2);
+    max-width: 60ch;
+    font-size: 0.98rem;
+  }
+
+  @media (max-width: 760px) {
+    .tiles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .tile-media,
+    .tile.feature .tile-media {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  /* ---- About teaser ---- */
+  .about {
+    border-top: 1px solid var(--line);
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .about-copy {
+    display: grid;
+    gap: 28px;
+    justify-items: start;
+    min-width: 0;
+  }
+
+  .facts {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  @media (max-width: 760px) {
+    .about-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

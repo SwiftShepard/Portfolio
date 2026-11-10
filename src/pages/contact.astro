@@ -1,0 +1,251 @@
+---
+import Base from '../layouts/Base.astro';
+import CopyEmail from '../components/CopyEmail.astro';
+import { site } from '../lib/projects.js';
+---
+<Base title="Contact" description="Contact Valentin Lothe, game artist. Open to full-time roles, freelance work and creative collaborations.">
+  <div class="container page">
+    <header class="intro">
+      <h1 class="display">Contact</h1>
+      <div class="side">
+        <p class="lead">Open to full-time roles, freelance work and creative collaborations. I usually reply within 24 to 48 hours.</p>
+        <CopyEmail />
+        <ul class="links">
+          <li><a href={site.artstation} rel="noopener" target="_blank">ArtStation</a></li>
+          <li><a href={site.linkedin} rel="noopener" target="_blank">LinkedIn</a></li>
+          <li><a href={site.cv} download="Valentin-Lothe-CV.pdf">CV (PDF)</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <section class="block" aria-labelledby="form-title">
+      <h2 id="form-title" class="h-section">Send a message</h2>
+      <form class="form" id="contact-form" novalidate>
+        <div class="field">
+          <label for="cf-email">Your email</label>
+          <input id="cf-email" name="from" type="email" autocomplete="email" required />
+          <p class="err" id="cf-email-err" hidden>Enter a valid email address so I can reply.</p>
+        </div>
+        <div class="field">
+          <label for="cf-subject">Subject</label>
+          <input id="cf-subject" name="subject" type="text" required />
+          <p class="err" id="cf-subject-err" hidden>Add a subject.</p>
+        </div>
+        <div class="field">
+          <label for="cf-message">Message</label>
+          <textarea id="cf-message" name="message" rows="7" required></textarea>
+          <p class="err" id="cf-message-err" hidden>Write a message.</p>
+        </div>
+        <div class="submit-row">
+          <button class="btn" type="submit">Send message</button>
+          <p class="status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import emailjs from '@emailjs/browser';
+
+  // Same EmailJS service and template as the previous site. The public key is meant to be public;
+  // restrict allowed origins to vlothe.com in the EmailJS dashboard.
+  const SERVICE = 'service_rsno87r';
+  const TEMPLATE = 'template_ig6qo08';
+  const PUBLIC_KEY = '8cGoJCGjx012ICJvG';
+  const EMAIL = 'valentin.lothe.art@gmail.com';
+
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const status = form?.querySelector<HTMLElement>('.status');
+  const button = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+  function check(id: string, ok: boolean) {
+    const input = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement;
+    const err = document.getElementById(id + '-err');
+    input.setAttribute('aria-invalid', String(!ok));
+    if (ok) input.removeAttribute('aria-describedby');
+    else input.setAttribute('aria-describedby', id + '-err');
+    if (err) err.hidden = ok;
+    return ok;
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const from = (form.elements.namedItem('from') as HTMLInputElement).value.trim();
+    const subject = (form.elements.namedItem('subject') as HTMLInputElement).value.trim();
+    const message = (form.elements.namedItem('message') as HTMLTextAreaElement).value.trim();
+
+    const okEmail = check('cf-email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(from));
+    const okSubject = check('cf-subject', subject.length > 0);
+    const okMessage = check('cf-message', message.length > 0);
+    if (!okEmail || !okSubject || !okMessage) {
+      (form.querySelector('[aria-invalid="true"]') as HTMLElement | null)?.focus();
+      return;
+    }
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Sending…';
+    }
+    if (status) {
+      status.className = 'status';
+      status.textContent = '';
+    }
+
+    try {
+      await emailjs.send(
+        SERVICE,
+        TEMPLATE,
+        { from_email: from, mail: from, name: from.split('@')[0], subject, title: subject, message },
+        { publicKey: PUBLIC_KEY },
+      );
+      form.reset();
+      if (status) {
+        status.className = 'status ok';
+        status.textContent = 'Message sent. I usually reply within 24 to 48 hours.';
+      }
+    } catch {
+      if (status) {
+        status.className = 'status bad';
+        status.textContent = `The message could not be sent. Please email me directly at ${EMAIL}.`;
+      }
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'Send message';
+      }
+    }
+  });
+</script>
+
+<style>
+  .page {
+    padding-top: clamp(48px, 7vw, 112px);
+    padding-bottom: clamp(24px, 4vw, 48px);
+  }
+
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .intro h1 {
+    font-size: clamp(3rem, 1rem + 7vw, 7.5rem);
+  }
+
+  .side {
+    display: grid;
+    gap: 26px;
+    min-width: 0;
+  }
+
+  .links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+  }
+
+  .links a {
+    color: var(--fg-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line-2);
+    padding-bottom: 2px;
+  }
+
+  .links a:hover {
+    color: var(--fg);
+    border-color: var(--accent);
+  }
+
+  .block {
+    padding-top: clamp(64px, 8vw, 128px);
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .form {
+    display: grid;
+    gap: 22px;
+    max-width: 680px;
+    min-width: 0;
+  }
+
+  .field {
+    display: grid;
+    gap: 8px;
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--fg-2);
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 16px;
+    color: var(--fg);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: 3px;
+    padding: 12px 14px;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 160px;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(200, 145, 90, 0.25);
+  }
+
+  [aria-invalid='true'] {
+    border-color: #e0806a;
+  }
+
+  .err {
+    color: #f0a08e;
+    font-size: 0.9rem;
+  }
+
+  .submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 24px;
+  }
+
+  .status {
+    font-size: 0.95rem;
+    color: var(--fg-2);
+  }
+
+  .status.ok {
+    color: var(--accent);
+  }
+
+  .status.bad {
+    color: #f0a08e;
+  }
+
+  @media (max-width: 820px) {
+    .intro,
+    .block {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

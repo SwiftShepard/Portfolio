@@ -1,0 +1,178 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Inspect from '../../components/Inspect.astro';
+import Gallery from '../../components/Gallery.astro';
+import { projects } from '../../lib/projects.js';
+
+export function getStaticPaths() {
+  return projects.map((p, i) => ({
+    params: { slug: p.slug },
+    props: { project: p, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+const { project: p, next } = Astro.props;
+const showInspect = Boolean((p.inspectLit && p.inspectWire) || p.modelUrl);
+const specs = Object.entries(p.specs ?? {});
+---
+<Base title={p.name} description={`${p.name}: ${p.pitch}`} ogImage={p.key}>
+  <article>
+    <figure class="key">
+      <Image
+        src={p.key}
+        alt={`${p.name}, key render`}
+        widths={[828, 1280, 1920, 2560]}
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+        quality={82}
+      />
+    </figure>
+
+    <header class="container head">
+      <div class="title">
+        <a class="back mono" href="/#work"><span aria-hidden="true">←</span> All work</a>
+        <h1 class="display">{p.name}</h1>
+        <p class="lead">{p.pitch}</p>
+      </div>
+      <dl class="spec">
+        <dt>Year</dt><dd>{p.year}</dd>
+        <dt>Type</dt><dd>{p.typeLabel}</dd>
+        <dt>Software</dt><dd>{p.breakdown.software.join(', ')}</dd>
+        <dt>Techniques</dt><dd>{p.breakdown.techniques.join(', ')}</dd>
+        {specs.map(([k, v]) => (<><dt>{k}</dt><dd>{v}</dd></>))}
+      </dl>
+    </header>
+
+    {showInspect && (
+      <div class="container block">
+        <Inspect name={p.name} lit={p.inspectLit} wire={p.inspectWire} poster={p.coverImage} modelUrl={p.modelUrl} modelMB={p.modelMB} />
+      </div>
+    )}
+
+    <section class="container block story" aria-labelledby="story-title">
+      <h2 id="story-title" class="h-section">The project</h2>
+      <p class="desc">{p.description}</p>
+    </section>
+
+    <div class="container block">
+      <Gallery name={p.name} items={p.gallery} />
+    </div>
+
+    {next && next.slug !== p.slug && (
+      <nav class="next" aria-label="Next project">
+        <a href={`/work/${next.slug}/`} class="container next-inner">
+          <span class="mono label">Next project</span>
+          <span class="display next-name">{next.name} <span aria-hidden="true">→</span></span>
+        </a>
+      </nav>
+    )}
+  </article>
+</Base>
+
+<style>
+  .key {
+    margin: 0;
+    background: var(--bg-2);
+    display: grid;
+    place-items: center;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .key :global(img) {
+    width: auto;
+    max-width: 100%;
+    max-height: min(86svh, 1200px);
+    object-fit: contain;
+  }
+
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(28px, 5vw, 96px);
+    align-items: start;
+    padding-top: clamp(40px, 6vw, 88px);
+  }
+
+  .title {
+    display: grid;
+    gap: 20px;
+    justify-items: start;
+    min-width: 0;
+  }
+
+  .back {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  .title h1 {
+    font-size: clamp(2.4rem, 1rem + 5.4vw, 6.2rem);
+    overflow-wrap: anywhere;
+  }
+
+  .head .spec {
+    margin-top: 8px;
+  }
+
+  .block {
+    padding-top: clamp(56px, 7vw, 112px);
+  }
+
+  .story {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .desc {
+    max-width: 68ch;
+    color: var(--fg-2);
+    font-size: 1.06rem;
+    line-height: 1.75;
+  }
+
+  .next {
+    margin-top: clamp(72px, 9vw, 144px);
+    border-top: 1px solid var(--line);
+  }
+
+  .next-inner {
+    display: grid;
+    gap: 14px;
+    padding-top: clamp(40px, 5vw, 72px);
+    padding-bottom: clamp(40px, 5vw, 72px);
+    text-decoration: none;
+  }
+
+  .label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .next-name {
+    font-size: clamp(2rem, 1rem + 4vw, 4.8rem);
+    transition: color 200ms ease;
+  }
+
+  .next-inner:hover .next-name {
+    color: var(--accent);
+  }
+
+  @media (max-width: 820px) {
+    .head,
+    .story {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
