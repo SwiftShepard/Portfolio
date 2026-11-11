@@ -13,6 +13,7 @@ const hasModel = Boolean(modelUrl);
     <h2 id="inspect-title" class="h-section">Inspect</h2>
     {hasCompare && (
       <div class="modes" role="group" aria-label="Render mode">
+        <button type="button" data-mode="scan" aria-pressed="false">Scan</button>
         <button type="button" data-mode="lit" aria-pressed="false">Lit</button>
         <button type="button" data-mode="compare" aria-pressed="true">Compare</button>
         <button type="button" data-mode="wire" aria-pressed="false">Wireframe</button>
@@ -35,6 +36,7 @@ const hasModel = Boolean(modelUrl);
         </div>
         <span class="tag tag-l mono" aria-hidden="true">Lit</span>
         <span class="tag tag-r mono" aria-hidden="true">Wireframe</span>
+        <span class="scanband" aria-hidden="true"></span>
         <span class="handle" aria-hidden="true"></span>
         <input class="range" type="range" min="0" max="100" value="50" step="0.5" aria-label={`Reveal the wireframe of the ${name}`} />
       </div>
@@ -101,7 +103,70 @@ const hasModel = Boolean(modelUrl);
       range.value = String(v);
     };
 
-    range?.addEventListener('input', () => setPos(Number(range.value)));
+    const press = (mode: string) => modeBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+
+    // Scanner: a scan line sweeps left to right and turns the wireframe into the final render,
+    // then glides back to the middle so the comparison handle is ready to drag.
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let scanRaf = 0;
+    let settleTimer = 0;
+    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    function stopScan() {
+      cancelAnimationFrame(scanRaf);
+      clearTimeout(settleTimer);
+      compare?.classList.remove('scanning');
+    }
+
+    function scan() {
+      if (!compare) return;
+      stopScan();
+      if (reduce.matches) {
+        setPos(50, true);
+        press('compare');
+        return;
+      }
+      press('scan');
+      compare.classList.add('scanning');
+      const start = performance.now();
+      const duration = 2400;
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        setPos(easeInOut(t) * 100);
+        if (t < 1) {
+          scanRaf = requestAnimationFrame(step);
+          return;
+        }
+        compare.classList.remove('scanning');
+        settleTimer = window.setTimeout(() => {
+          setPos(50, true);
+          press('compare');
+        }, 450);
+      };
+      setPos(0);
+      scanRaf = requestAnimationFrame(step);
+    }
+
+    range?.addEventListener('input', () => {
+      stopScan();
+      press('compare');
+      setPos(Number(range.value));
+    });
+
+    // Play the scan once, the first time the frame comes into view.
+    if (compare && !reduce.matches && 'IntersectionObserver' in window) {
+      setPos(0);
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            io.disconnect();
+            scan();
+          }
+        },
+        { threshold: 0.55 },
+      );
+      io.observe(compare);
+    }
 
     async function open3D() {
       if (!viewer || !modelUrl) return;
@@ -145,8 +210,14 @@ const hasModel = Boolean(modelUrl);
 
     modeBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
-        modeBtns.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
         const mode = btn.dataset.mode;
+        stopScan();
+        if (mode === 'scan') {
+          show2D(0);
+          scan();
+          return;
+        }
+        press(mode ?? '');
         if (mode === 'lit') show2D(100);
         else if (mode === 'wire') show2D(0);
         else if (mode === 'compare') show2D(50);
@@ -289,6 +360,36 @@ const hasModel = Boolean(modelUrl);
     transform: translate(-50%, -50%);
     background: var(--bg);
     box-shadow: inset 0 0 0 1px var(--accent);
+    transition: opacity 200ms ease;
+  }
+
+  /* Scanner: the handle turns into a glowing scan line (wireframe blue) with a light band ahead of it. */
+  .scanband {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--pos);
+    width: 9%;
+    background: linear-gradient(90deg, rgba(95, 183, 255, 0.24), rgba(95, 183, 255, 0));
+    mix-blend-mode: screen;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+
+  .compare.scanning .scanband {
+    opacity: 1;
+  }
+
+  .compare.scanning .handle {
+    width: 2px;
+    margin-left: -1px;
+    background: #d9f0ff;
+    box-shadow: 0 0 10px 2px rgba(95, 183, 255, 0.9), 0 0 36px 8px rgba(95, 183, 255, 0.35);
+  }
+
+  .compare.scanning .handle::after {
+    opacity: 0;
   }
 
   .range {
