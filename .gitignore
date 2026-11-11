@@ -2,3 +2,4 @@ node_modules/
 dist/
 .astro/
 HOW_TO_ADD_MEDIA.md
+sources/
